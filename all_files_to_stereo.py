@@ -11,7 +11,7 @@ cmip_dir='/bdd/CMIP6'
 # output dir :
 out_dir='/data/njourdain/CMIP6_ON_ISMIP6_GRID'
 
-model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR']
+model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1']
 scenar_list = ['historical','ssp126','ssp245','ssp585','piControl']
 var_list=['thetao','so']
 
@@ -31,6 +31,14 @@ for model in model_list:
         namlon='nav_lon'
         namlat='nav_lat'
         namlev='olevel'
+    elif ( model[0:4] == 'CESM' ):
+        institute='NCAR'
+        namlon='lon'
+        namlat='lat'
+    elif ( model[0:4] == 'CNRM' ):
+        institute='CNRM-CERFACS'
+        namlon='lon'
+        namlat='lat'
     else:
         institute='NOT_PROVIDED'
 

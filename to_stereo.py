@@ -82,7 +82,7 @@ def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
    #tmp = var_cmip.values.reshape((mt_cmip, mz_cmip, mxy_cmip))
 
    count=-1
-   alphabet=['abcdefghijklmnopqrstuvwxyz']
+   alphabet='abcdefghijklmnopqrstuvwxyz'
    for ks in np.arange(0,mt_cmip,120): # slices of 10-year maximum
 
        count=count+1
@@ -100,7 +100,7 @@ def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
     
            # horizontal interpolation
     
-           var_cmip_1d = tmp[kt,kz,:]
+           var_cmip_1d = tmp[kt-ks,kz,:]
     
            var_st_1d = interpolate.griddata( (x_cmip_1d,y_cmip_1d), var_cmip_1d, (xst_2d_1d,yst_2d_1d), \
                                              method='linear', fill_value=np.nan )
@@ -111,9 +111,9 @@ def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
     
          for kzis in np.arange(ismip_depth.size):
     
-           var_out[kt,kzis,:,:] = (   var_tmp[kinf[kzis],:,:] * (ismip_depth[kzis]-lev_cmip[ksup[kzis]])   \
-                                    + var_tmp[ksup[kzis],:,:] * (lev_cmip[kinf[kzis]]-ismip_depth[kzis]) ) \
-                                / (lev_cmip[kinf[kzis]]-lev_cmip[ksup[kzis]])
+           var_out[kt-ks,kzis,:,:] = (   var_tmp[kinf[kzis],:,:] * (ismip_depth[kzis]-lev_cmip[ksup[kzis]])   \
+                                       + var_tmp[ksup[kzis],:,:] * (lev_cmip[kinf[kzis]]-ismip_depth[kzis]) ) \
+                                   / (lev_cmip[kinf[kzis]]-lev_cmip[ksup[kzis]])
     
        # save netcdf file :
        
