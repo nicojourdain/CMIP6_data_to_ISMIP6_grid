@@ -89,37 +89,36 @@ def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
 
        new_file_out = file_out.replace('.nc','_'+alphabet[count]+'.nc')
 
-       for kt in np.arange(ks,min([mt_cmip,ks+120]),1):
-         #print('kt = ',kt, time.time()-start)
+       var_out = np.zeros((np.arange(ks,min([mt_cmip,ks+120])).size, ismip_depth.size, grd.y.size, grd.x.size))*np.nan
+       tmp = var_cmip.isel(time=slice(ks,min([mt_cmip,ks+120]))).values.reshape(np.arange(ks,min([mt_cmip,ks+120])).size, mz_cmip, mxy_cmip)
+       var_tmp = np.zeros((mz_cmip, grd.y.size, grd.x.size))*np.nan
+   
+       for kt in np.arange(np.arange(ks,min([mt_cmip,ks+120])).size):
+
+           for kz in np.arange(mz_cmip):
     
-         var_out = np.zeros((np.arange(ks,min([mt_cmip,ks+120])).size, ismip_depth.size, grd.y.size, grd.x.size))*np.nan
-         tmp = var_cmip.isel(time=slice(ks,min([mt_cmip,ks+120]))).values.reshape(np.arange(ks,min([mt_cmip,ks+120])).size, mz_cmip, mxy_cmip)
-         var_tmp = np.zeros((mz_cmip, grd.y.size, grd.x.size))*np.nan
+               # horizontal interpolation
     
-         for kz in np.arange(mz_cmip):
+               var_cmip_1d = tmp[kt,kz,:]
     
-           # horizontal interpolation
+               var_st_1d = interpolate.griddata( (x_cmip_1d,y_cmip_1d), var_cmip_1d, (xst_2d_1d,yst_2d_1d), \
+                                                 method='linear', fill_value=np.nan )
     
-           var_cmip_1d = tmp[kt-ks,kz,:]
+               var_tmp[kz,:,:] = np.reshape( var_st_1d, (grd.y.size,grd.x.size) )
     
-           var_st_1d = interpolate.griddata( (x_cmip_1d,y_cmip_1d), var_cmip_1d, (xst_2d_1d,yst_2d_1d), \
-                                             method='linear', fill_value=np.nan )
+           # vertical interpolation :
     
-           var_tmp[kz,:,:] = np.reshape( var_st_1d, (grd.y.size,grd.x.size) )
+           for kzis in np.arange(ismip_depth.size):
     
-         # vertical interpolation :
-    
-         for kzis in np.arange(ismip_depth.size):
-    
-           var_out[kt-ks,kzis,:,:] = (   var_tmp[kinf[kzis],:,:] * (ismip_depth[kzis]-lev_cmip[ksup[kzis]])   \
-                                       + var_tmp[ksup[kzis],:,:] * (lev_cmip[kinf[kzis]]-ismip_depth[kzis]) ) \
-                                   / (lev_cmip[kinf[kzis]]-lev_cmip[ksup[kzis]])
+               var_out[kt,kzis,:,:] = (   var_tmp[kinf[kzis],:,:] * (ismip_depth[kzis]-lev_cmip[ksup[kzis]])   \
+                                        + var_tmp[ksup[kzis],:,:] * (lev_cmip[kinf[kzis]]-ismip_depth[kzis]) ) \
+                                      / (lev_cmip[kinf[kzis]]-lev_cmip[ksup[kzis]])
     
        # save netcdf file :
        
        outds= xr.Dataset(
           {
-          "thetao":        (["time", "z", "y", "x"], np.float32(var_out)),
+          var_name:        (["time", "z", "y", "x"], np.float32(var_out)),
           },
           coords={
           "x": np.float32(grd.x.values),
@@ -155,10 +154,4 @@ def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
 
 
 #=================================================================
-#test:
-#
-#f1='/Users/nicolasjourdain/DATA_ISMIP6/imbie2_basin_numbers_8km.nc'
-#li= glob.glob('/Users/nicolasjourdain/DATA_CMIP6/MPI-ESM1-2-HR/thetao_Omon_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_1860*.nc')
-#
-#to_stereo(ismip_grid_file=f1,cmip_file_list=li,file_out='test.nc',var_name='thetao')
 
