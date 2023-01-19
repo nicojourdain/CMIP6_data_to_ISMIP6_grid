@@ -4,6 +4,7 @@ import glob
 from ll2xy import ll2xy
 from scipy import interpolate
 import time
+import os
 
 #=================================================================
 def vertical_interp(original_depth,interpolated_depth):
@@ -89,68 +90,74 @@ def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
 
        new_file_out = file_out.replace('.nc','_'+alphabet[count]+'.nc')
 
-       var_out = np.zeros((np.arange(ks,min([mt_cmip,ks+120])).size, ismip_depth.size, grd.y.size, grd.x.size))*np.nan
-       tmp = var_cmip.isel(time=slice(ks,min([mt_cmip,ks+120]))).values.reshape(np.arange(ks,min([mt_cmip,ks+120])).size, mz_cmip, mxy_cmip)
-       var_tmp = np.zeros((mz_cmip, grd.y.size, grd.x.size))*np.nan
-   
-       for kt in np.arange(np.arange(ks,min([mt_cmip,ks+120])).size):
+       if os.path.exists(new_file_out) :
 
-           for kz in np.arange(mz_cmip):
-    
-               # horizontal interpolation
-    
-               var_cmip_1d = tmp[kt,kz,:]
-    
-               var_st_1d = interpolate.griddata( (x_cmip_1d,y_cmip_1d), var_cmip_1d, (xst_2d_1d,yst_2d_1d), \
-                                                 method='linear', fill_value=np.nan )
-    
-               var_tmp[kz,:,:] = np.reshape( var_st_1d, (grd.y.size,grd.x.size) )
-    
-           # vertical interpolation :
-    
-           for kzis in np.arange(ismip_depth.size):
-    
-               var_out[kt,kzis,:,:] = (   var_tmp[kinf[kzis],:,:] * (ismip_depth[kzis]-lev_cmip[ksup[kzis]])   \
-                                        + var_tmp[ksup[kzis],:,:] * (lev_cmip[kinf[kzis]]-ismip_depth[kzis]) ) \
-                                      / (lev_cmip[kinf[kzis]]-lev_cmip[ksup[kzis]])
-    
-       # save netcdf file :
+           print('already there : ',new_file_out)
+
+       else:
+
+           var_out = np.zeros((np.arange(ks,min([mt_cmip,ks+120])).size, ismip_depth.size, grd.y.size, grd.x.size))*np.nan
+           tmp = var_cmip.isel(time=slice(ks,min([mt_cmip,ks+120]))).values.reshape(np.arange(ks,min([mt_cmip,ks+120])).size, mz_cmip, mxy_cmip)
+           var_tmp = np.zeros((mz_cmip, grd.y.size, grd.x.size))*np.nan
        
-       outds= xr.Dataset(
-          {
-          var_name:        (["time", "z", "y", "x"], np.float32(var_out)),
-          },
-          coords={
-          "x": np.float32(grd.x.values),
-          "y": np.float32(grd.y.values),
-          "z": np.float32(ismip_depth*(-1)),
-          "time": cmip.time.isel(time=slice(ks,min([mt_cmip,ks+120]))).values
-          },
-       )
+           for kt in np.arange(np.arange(ks,min([mt_cmip,ks+120])).size):
     
-       outds.x.encoding['_FillValue'] = None
-       outds.x.attrs['units'] = 'm'
-       outds.x.attrs['long_name'] = 'x coordinate'
+               for kz in np.arange(mz_cmip):
         
-       outds.y.encoding['_FillValue'] = None
-       outds.y.attrs['units'] = 'm'
-       outds.y.attrs['long_name'] = 'y coordinate'
+                   # horizontal interpolation
         
-       outds.z.encoding['_FillValue'] = None
-       outds.z.attrs['units'] = 'm'
-       outds.z.attrs['long_name'] = 'depth'
-       outds.z.attrs['positive'] = 'up'
+                   var_cmip_1d = tmp[kt,kz,:]
         
-       outds.time.encoding['units'] = 'days since 1850-01-01'
-       outds.time.encoding['_FillValue'] = None
-       outds.time.attrs['standard_name'] = 'time'
-       
-       # global attributes :
-       outds.attrs['history'] = 'interpolated by Nicolas Jourdain (IGE, Grenoble, FR)' 
-       outds.attrs['project'] = 'EU-H2020-PROTECT'
+                   var_st_1d = interpolate.griddata( (x_cmip_1d,y_cmip_1d), var_cmip_1d, (xst_2d_1d,yst_2d_1d), \
+                                                     method='linear', fill_value=np.nan )
         
-       print('Creating ',new_file_out)
-       outds.to_netcdf(new_file_out,mode='w',unlimited_dims="time")
+                   var_tmp[kz,:,:] = np.reshape( var_st_1d, (grd.y.size,grd.x.size) )
+        
+               # vertical interpolation :
+        
+               for kzis in np.arange(ismip_depth.size):
+        
+                   var_out[kt,kzis,:,:] = (   var_tmp[kinf[kzis],:,:] * (ismip_depth[kzis]-lev_cmip[ksup[kzis]])   \
+                                            + var_tmp[ksup[kzis],:,:] * (lev_cmip[kinf[kzis]]-ismip_depth[kzis]) ) \
+                                          / (lev_cmip[kinf[kzis]]-lev_cmip[ksup[kzis]])
+        
+           # save netcdf file :
+           
+           outds= xr.Dataset(
+              {
+              var_name:        (["time", "z", "y", "x"], np.float32(var_out)),
+              },
+              coords={
+              "x": np.float32(grd.x.values),
+              "y": np.float32(grd.y.values),
+              "z": np.float32(ismip_depth*(-1)),
+              "time": cmip.time.isel(time=slice(ks,min([mt_cmip,ks+120]))).values
+              },
+           )
+        
+           outds.x.encoding['_FillValue'] = None
+           outds.x.attrs['units'] = 'm'
+           outds.x.attrs['long_name'] = 'x coordinate'
+            
+           outds.y.encoding['_FillValue'] = None
+           outds.y.attrs['units'] = 'm'
+           outds.y.attrs['long_name'] = 'y coordinate'
+            
+           outds.z.encoding['_FillValue'] = None
+           outds.z.attrs['units'] = 'm'
+           outds.z.attrs['long_name'] = 'depth'
+           outds.z.attrs['positive'] = 'up'
+            
+           outds.time.encoding['units'] = 'days since 1850-01-01'
+           outds.time.encoding['_FillValue'] = None
+           outds.time.attrs['standard_name'] = 'time'
+           
+           # global attributes :
+           outds.attrs['history'] = 'interpolated by Nicolas Jourdain (IGE, Grenoble, FR)' 
+           outds.attrs['project'] = 'EU-H2020-PROTECT'
+            
+           print('Creating ',new_file_out)
+           outds.to_netcdf(new_file_out,mode='w',unlimited_dims="time")
 
 
 #=================================================================

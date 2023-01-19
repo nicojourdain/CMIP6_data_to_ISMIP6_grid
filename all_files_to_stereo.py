@@ -9,7 +9,7 @@ f1='/data/njourdain/DATA_ISMIP6/imbie2_basin_numbers_8km.nc'
 cmip_dir='/bdd/CMIP6'
 
 # output dir :
-out_dir='/data/njourdain/CMIP6_ON_ISMIP6_GRID'
+out_dir='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID'
 
 model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1']
 scenar_list = ['historical','ssp126','ssp245','ssp585','piControl']

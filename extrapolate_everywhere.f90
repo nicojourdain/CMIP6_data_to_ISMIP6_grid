@@ -5,14 +5,21 @@ USE netcdf
 IMPLICIT NONE
  
 INTEGER :: fidA, status, dimID_x, dimID_y, dimID_z, dimID_time, mx, my, mz, mtime, &
-&          time_ID, z_ID, y_ID, x_ID, var_ID, fidM, fidB, fidT, basinNumber_ID,    &
-&          mask_ID, bed_ID, bb, kiter, ki, kj, kz, kt
+&          time_ID, z_ID, y_ID, x_ID, varin_ID, fidM, fidB, fidT, basinNumber_ID,  &
+&          mask_ID, bed_ID, kiter, ki, kj, kz, kt, kbasin, Nbasin, mask_ocean_ID,  &
+&          varout_ID, kim1, kip1, kjm1, kjp1, kim2, kip2, kjm2, kjp2, kim3, kip3,  &
+&          kjm3, kjp3
 
 CHARACTER(LEN=15) :: varnam
 
 CHARACTER(LEN=150) :: file_in, file_out, file_basin, file_topo
 
-REAL*4 :: aa
+REAL*4 :: miss
+
+REAL*4 :: aa, bb, bbim1jjj, bbip1jjj, bbiiijm1, bbiiijp1, bbim2jjj, bbip2jjj, bbiiijm2, bbiiijp2, &
+&                 bbim1jm1, bbim1jp1, bbip1jm1, bbip1jp1, bbim2jp1, bbim2jm1, bbip2jp1, bbip2jm1, &
+&                 bbim1jp2, bbip1jp2, bbim1jm2, bbip1jm2, bbim2jm2, bbim2jp2, bbip2jm2, bbip2jp2, &
+&                 bbim3jjj, bbip3jjj, bbiiijm3, bbiiijp3 
 
 REAL*4,DIMENSION(30) :: depth
 
@@ -22,18 +29,22 @@ REAL*8,ALLOCATABLE,DIMENSION(:) :: time
  
 INTEGER*8,ALLOCATABLE,DIMENSION(:,:) :: basinNumber
 
-REAL*4,ALLOCATABLE,DIMENSION(:,:) :: mask, bed, var
+REAL*4,ALLOCATABLE,DIMENSION(:,:) :: mask, bed, mask_ocean
 
-INTEGER*2,ALLOCATABLE,DIMENSION(:,:) :: mskba
+REAL*4,ALLOCATABLE,DIMENSION(:,:,:,:) :: var, var_new
+
+INTEGER,ALLOCATABLE,DIMENSION(:,:) :: mskba
+
+INTEGER,ALLOCATABLE,DIMENSION(:) :: Niter
 
 !----------------------------------------------------------------
 
-file_in  = '/data/njourdain/CMIP6_ON_ISMIP6_GRID/so_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_e.nc'
-file_out = '/data/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED/so_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_e.nc'
+file_in  = '/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/so_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_e.nc'
+file_out = '/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED/so_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_e.nc'
 file_basin = '/data/njourdain/DATA_ISMIP6/imbie2_basin_numbers_8km_v2.nc' 
 file_topo  = '/data/njourdain/DATA_ISMIP6/BedMachineAntarctica_2020-07-15_v02_8km.nc'
 
-varnam = 'thetao'
+varnam = 'so'
 
 !----------------------------------------------------------------
 ! Read CMIP6 data (previously interpolated to the ISMIP6 grid) :
@@ -56,19 +67,20 @@ ALLOCATE(  time(mtime)  )
 ALLOCATE(  z(mz)  ) 
 ALLOCATE(  y(my)  ) 
 ALLOCATE(  x(mx)  ) 
-ALLOCATE(  var(mx,my)  ) 
+ALLOCATE(  var(mx,my,1,mtime)  ) 
+ALLOCATE(  var_new(mx,my,1,mtime)  ) 
  
 status = NF90_INQ_VARID(fidA,"time",time_ID); call erreur(status,.TRUE.,"inq_time_ID")
 status = NF90_INQ_VARID(fidA,"z",z_ID); call erreur(status,.TRUE.,"inq_z_ID")
 status = NF90_INQ_VARID(fidA,"y",y_ID); call erreur(status,.TRUE.,"inq_y_ID")
 status = NF90_INQ_VARID(fidA,"x",x_ID); call erreur(status,.TRUE.,"inq_x_ID")
-status = NF90_INQ_VARID(fidA,TRIM(varnam),var_ID); call erreur(status,.TRUE.,"inq_var_ID")
+status = NF90_INQ_VARID(fidA,TRIM(varnam),varin_ID); call erreur(status,.TRUE.,"inq_var_ID")
  
 status = NF90_GET_VAR(fidA,time_ID,time); call erreur(status,.TRUE.,"getvar_time")
 status = NF90_GET_VAR(fidA,z_ID,z); call erreur(status,.TRUE.,"getvar_z")
 status = NF90_GET_VAR(fidA,y_ID,y); call erreur(status,.TRUE.,"getvar_y")
 status = NF90_GET_VAR(fidA,x_ID,x); call erreur(status,.TRUE.,"getvar_x")
- 
+
 !----------------------------------------------------------------
 ! Reading IMBIE2 basins :
  
@@ -95,14 +107,20 @@ status = NF90_OPEN(TRIM(file_topo),0,fidT); call erreur(status,.TRUE.,"read")
  
 ALLOCATE(  mask(mx,my)  ) 
 ALLOCATE(  bed(mx,my)  ) 
+ALLOCATE(  mask_ocean(mx,my)  ) 
  
 status = NF90_INQ_VARID(fidT,"mask",mask_ID); call erreur(status,.TRUE.,"inq_mask_ID")
 status = NF90_INQ_VARID(fidT,"bed",bed_ID); call erreur(status,.TRUE.,"inq_bed_ID")
+status = NF90_INQ_VARID(fidT,"mask_ocean",mask_ocean_ID); call erreur(status,.TRUE.,"inq_mask_ocean_ID")
  
 status = NF90_GET_VAR(fidT,mask_ID,mask); call erreur(status,.TRUE.,"getvar_mask")
 status = NF90_GET_VAR(fidT,bed_ID,bed); call erreur(status,.TRUE.,"getvar_bed")
+status = NF90_GET_VAR(fidT,mask_ocean_ID,mask_ocean); call erreur(status,.TRUE.,"getvar_mask_ocean")
  
 status = NF90_CLOSE(fidT); call erreur(status,.TRUE.,"close_file")
+
+!### TMP #####
+mz=1
 
 !-------------------------------------------------------------
 ! Preparing new netcdf file with extrapolated data:
@@ -120,7 +138,7 @@ status = NF90_DEF_VAR(fidM,"time",NF90_DOUBLE,(/dimID_time/),time_ID); call erre
 status = NF90_DEF_VAR(fidM,"z",NF90_FLOAT,(/dimID_z/),z_ID); call erreur(status,.TRUE.,"def_var_z_ID")
 status = NF90_DEF_VAR(fidM,"y",NF90_FLOAT,(/dimID_y/),y_ID); call erreur(status,.TRUE.,"def_var_y_ID")
 status = NF90_DEF_VAR(fidM,"x",NF90_FLOAT,(/dimID_x/),x_ID); call erreur(status,.TRUE.,"def_var_x_ID")
-status = NF90_DEF_VAR(fidM,TRIM(varnam),NF90_FLOAT,(/dimID_x,dimID_y,dimID_z,dimID_time/),var_ID); call erreur(status,.TRUE.,"def_var_var_ID")
+status = NF90_DEF_VAR(fidM,TRIM(varnam),NF90_FLOAT,(/dimID_x,dimID_y,dimID_z,dimID_time/),varout_ID); call erreur(status,.TRUE.,"def_var_var_ID")
  
 status = NF90_PUT_ATT(fidM,time_ID,"calendar","proleptic_gregorian"); call erreur(status,.TRUE.,"put_att_time_ID")
 status = NF90_PUT_ATT(fidM,time_ID,"units","days since 1850-01-01"); call erreur(status,.TRUE.,"put_att_time_ID")
@@ -132,8 +150,9 @@ status = NF90_PUT_ATT(fidM,y_ID,"long_name","y coordinate"); call erreur(status,
 status = NF90_PUT_ATT(fidM,y_ID,"units","m"); call erreur(status,.TRUE.,"put_att_y_ID")
 status = NF90_PUT_ATT(fidM,x_ID,"long_name","x coordinate"); call erreur(status,.TRUE.,"put_att_x_ID")
 status = NF90_PUT_ATT(fidM,x_ID,"units","m"); call erreur(status,.TRUE.,"put_att_x_ID")
-status = NF90_PUT_ATT(fidM,var_ID,"_FillValue",NaN); call erreur(status,.TRUE.,"put_att_var_ID")
- 
+
+status = NF90_PUT_ATT(fidM,varout_ID,"missing_value",miss); call erreur(status,.TRUE.,"put_att_var_ID")
+
 status = NF90_PUT_ATT(fidM,NF90_GLOBAL,"project","EU-H2020-PROTECT"); call erreur(status,.TRUE.,"att_GLO1")
 status = NF90_PUT_ATT(fidM,NF90_GLOBAL,"history","Created by N. Jourdain (IGE,CNRS)"); call erreur(status,.TRUE.,"att_GLO2")
 status = NF90_PUT_ATT(fidM,NF90_GLOBAL,"method","see https://github.com/nicojourdain/CMIP6_data_to_ISMIP6_grid"); call erreur(status,.TRUE.,"att_GLO3")
@@ -141,79 +160,136 @@ status = NF90_PUT_ATT(fidM,NF90_GLOBAL,"method","see https://github.com/nicojour
 status = NF90_ENDDEF(fidM); call erreur(status,.TRUE.,"end_definition") 
  
 status = NF90_PUT_VAR(fidM,time_ID,time); call erreur(status,.TRUE.,"putvar_time")
-status = NF90_PUT_VAR(fidM,z_ID,z); call erreur(status,.TRUE.,"putvar_z")
+status = NF90_PUT_VAR(fidM,z_ID,z(1)); call erreur(status,.TRUE.,"putvar_z")
+!TMP status = NF90_PUT_VAR(fidM,z_ID,z); call erreur(status,.TRUE.,"putvar_z")
 status = NF90_PUT_VAR(fidM,y_ID,y); call erreur(status,.TRUE.,"putvar_y")
 status = NF90_PUT_VAR(fidM,x_ID,x); call erreur(status,.TRUE.,"putvar_x")
 
 !---------------------------------------------------------------------------------
-dxy=abs(x(2)-x(1))  ! ISMIP6 grid resolution
-nxy=nint(25.e3/dxy) ! number of points to take for extrapolation (assuming +- 25 km)
-sig=15.e3
-write(*,*) 'nxy = ', nxy
+Nbasin=MAXVAL(basinNumber)
+write(*,*) 'Number of IMBIE2 basins : ', Nbasin
 
-depth = (/ -30, -90, -150, -210, -270, -330, -390, -450, -510, -570, -630, -690, &
-&          -750, -810, -870, -930, -990, -1050, -1110, -1170, -1230, -1290, -1350, &
-&          -1410, -1470, -1530, -1590, -1650, -1710, -1770 /)
+! number of iteration to fill the ice shelves in each basin:
+ALLOCATE( Niter(Nbasin) )
+Niter(:) = 30
+Niter(3) = 100 ! Amery
+Niter(8) = 150 ! Ross
+Niter(15) = 150 ! FRIS
 
-DO kt=1,mtime
- write(*,*) '%%%>> ', kt
- DO kz=1,mz
+miss=-1.e6 ! temporary missing value
+
+DO kz=1,mz
+  write(*,*) '     kz ', kz
 
   ! read 2d variable in netcdf
-  status = NF90_GET_VAR(fidA,var_ID,var,start=(/1,1,kz,kt/),count=(/mx,my,1,1/))
+  status = NF90_GET_VAR(fidA,varin_ID,var,start=(/1,1,kz,1/),count=(/mx,my,1,mtime/))
   call erreur(status,.TRUE.,"get_var")  
+
+  write(*,*) 'MINMAX ', MINVAL(var), MAXVAL(var)
+  do ki=1,mx
+  do kj=1,my
+  do kt=1,mtime
+    if ( ISNAN(var(ki,kj,1,kt)) )  var(ki,kj,1,kt) = miss
+    if ( abs(var(ki,kj,1,kt)) .gt. 50. .and. abs(var(ki,kj,1,kt)) .lt. 1.e3 ) write(*,*) ki, kj, kt, var(ki,kj,1,kt) 
+  enddo
+  enddo
+  enddo
+  write(*,*) 'MINMAX ', MINVAL(var), MAXVAL(var)
 
   ! step1: interpolation in basin and only into present-day ice shelf cavities and open ocean
   do kbasin=1,Nbasin
 
-   do kiter=1,200
+   do kiter=1,Niter(kbasin)
 
-    varnew(:,:) = var(:,:)
+    var_new(:,:,:,:) = var(:,:,:,:)
 
     do ki=1,mx
     do kj=1,my
-      if ( ( .not. ISNAN(var(ki,kj) ) .and. bed(ki,kj) .lt. depth(kz) .and. basinNumber(ki,kj) .eq. kbasin ) then
+      if ( abs(var(ki,kj,1,1)) .lt. 1.e3 .and. bed(ki,kj) .lt. z(kz) .and. basinNumber(ki,kj) .eq. kbasin-1 ) then
               mskba(ki,kj) = 1
       else
               mskba(ki,kj) = 0
       endif
     enddo
     enddo
+    write(*,*) kbasin, kiter, mskba(366,222), var(366,222,1,1), NINT(mask(366,222)), NINT(mask_ocean(366,222))
 
-    do ki=3,mx-2
-    do kj=3,my-2
+    do ki=1,mx
+    do kj=1,my
       ! open ocean or ice shelf point with missing data and connected to ocean neighbours
-      if ( mskba(ki,kj) .eq. 0 .and. ( mask(ki,kj) .gt. 0.1 .or. surface(ki,kj) .lt. 10.0 ) ) then 
-           aa =   var(ki-1,kj) * mskba(ki-1,kj) &
-           &    + var(ki+1,kj) * mskba(ki+1,kj) &
-           &    + var(ki,kj-1) * mskba(ki,kj-1) &
-           &    + var(ki,kj+1) * mskba(ki,kj+1) &
-           &    + var(ki-2,kj) * mskba(ki-1,kj) * mskba(ki-2,kj) & ! continuous connection
-           &    + var(ki+2,kj) * mskba(ki+1,kj) * mskba(ki+2,kj) &
-           &    + var(ki,kj-2) * mskba(ki,kj-1) * mskba(ki,kj-2) &
-           &    + var(ki,kj+2) * mskba(ki,kj+1) * mskba(ki,kj+2) &
-           &    + var(ki-1,kj-1) * MAX(msk(i-1,j),msk(i,j-1))    & ! continuous connection
-           &    + var(ki-1,kj+1) * MAX(msk(i-1,j),msk(i,j+1))    &
-           &    + var(ki+1,kj-1) * MAX(msk(i+1,j),msk(i,j-1))    &
-           &    + var(ki+1,kj+1) * MAX(msk(i+1,j),msk(i,j+1))
-           bb =   mskba(ki-1,kj) &
-           &    + mskba(ki+1,kj) &
-           &    + mskba(ki,kj-1) &
-           &    + mskba(ki,kj+1) &
-           &    + mskba(ki-1,kj) * mskba(ki-2,kj) &
-           &    + mskba(ki+1,kj) * mskba(ki+2,kj) &
-           &    + mskba(ki,kj-1) * mskba(ki,kj-2) &
-           &    + mskba(ki,kj+1) * mskba(ki,kj+2) &
-           &    + MAX(msk(i-1,j),msk(i,j-1))    &
-           &    + MAX(msk(i-1,j),msk(i,j+1))    &
-           &    + MAX(msk(i+1,j),msk(i,j-1))    &
-           &    + MAX(msk(i+1,j),msk(i,j+1))
-           if ( bb .ne. 0 ) var_new(ki,kj) = aa / bb
+      if ( abs(var(ki,kj,1,1)) .ge. 1.e3 .and. bed(ki,kj) .lt. z(kz) .and. basinNumber(ki,kj) .eq. kbasin-1 &
+      &    .and. ( mask(ki,kj) .gt. 0.01 .or. mask_ocean(ki,kj) .gt. 0.01 ) ) then 
+         
+           ! Gaussian extrapolation to contiguous neighbours (needs continuous connection to (ki,kj) ) :
+
+           kim1=MAX(ki-1, 1) ; kim2=MAX(ki-2, 1) ; kim3=MAX(ki-3, 1)
+           kip1=MIN(ki+1,mx) ; kip2=MIN(ki+2,mx) ; kip3=MIN(ki+3,mx)
+           kjm1=MAX(kj-1, 1) ; kjm2=MAX(kj-2, 1) ; kjm3=MAX(kj-3, 1)
+           kjp1=MIN(kj+1,my) ; kjp2=MIN(kj+2,my) ; kjp3=MIN(kj+3,my)
+
+           bbim1jjj = mskba(kim1,kj) * 1.e0
+           bbip1jjj = mskba(kip1,kj) * 1.e0
+           bbiiijm1 = mskba(ki,kjm1) * 1.e0
+           bbiiijp1 = mskba(ki,kjp1) * 1.e0
+           !-
+           bbim2jjj = bbim1jjj * mskba(kim2,kj)
+           bbip2jjj = bbim1jjj * mskba(kip2,kj)
+           bbiiijm2 = bbiiijm1 * mskba(ki,kjm2)
+           bbiiijp2 = bbiiijm1 * mskba(ki,kjp2)
+           !-
+           bbim1jm1 = MAX(bbim1jjj,bbiiijm1) * mskba(kim1,kjm1)
+           bbim1jp1 = MAX(bbim1jjj,bbiiijp1) * mskba(kim1,kjp1)
+           bbip1jm1 = MAX(bbip1jjj,bbiiijm1) * mskba(kip1,kjm1)
+           bbip1jp1 = MAX(bbip1jjj,bbiiijp1) * mskba(kip1,kjp1)
+           !-
+           bbim2jp1 = MAX(bbim2jjj,bbim1jp1) * mskba(kim2,kjp1)
+           bbim2jm1 = MAX(bbim2jjj,bbim1jm1) * mskba(kim2,kjm1)
+           bbip2jp1 = MAX(bbip2jjj,bbip1jp1) * mskba(kip2,kjp1)
+           bbip2jm1 = MAX(bbip2jjj,bbip1jm1) * mskba(kip2,kjm1)
+           bbim1jp2 = MAX(bbim1jp1,bbiiijp2) * mskba(kim1,kjp2)
+           bbip1jp2 = MAX(bbip1jp1,bbiiijp2) * mskba(kip1,kjp2)
+           bbim1jm2 = MAX(bbim1jm1,bbiiijm2) * mskba(kim1,kjm2)
+           bbip1jm2 = MAX(bbip1jm1,bbiiijm2) * mskba(kip1,kjm2)
+           !-
+           bbim2jm2 = MAX(bbim2jm1,bbim1jm2) * mskba(kim2,kjm2)
+           bbim2jp2 = MAX(bbim2jp1,bbim1jp2) * mskba(kim2,kjp2)
+           bbip2jm2 = MAX(bbip2jm1,bbip1jm2) * mskba(kip2,kjm2)
+           bbip2jp2 = MAX(bbip2jp1,bbip1jp2) * mskba(kip2,kjp2)
+           !-
+           bbim3jjj = bbim2jjj * mskba(kim3,kj)
+           bbip3jjj = bbim2jjj * mskba(kip3,kj)
+           bbiiijm3 = bbiiijm2 * mskba(ki,kjm3)
+           bbiiijp3 = bbiiijm2 * mskba(ki,kjp3)
+
+           bb =   ( bbim1jjj + bbip1jjj + bbiiijm1 + bbiiijp1 ) * 0.946 & ! normalised Gaussian of sigma=24km at x=8km
+           &    + ( bbim2jjj + bbip2jjj + bbiiijm2 + bbiiijp2 ) * 0.801 & !  "     "      "       "       "      x=16km
+           &    + ( bbim1jm1 + bbim1jp1 + bbip1jm1 + bbip1jp1 ) * 0.895 & !  "     "      "       "       "      x=11.3km
+           &    + ( bbim2jp1 + bbim2jm1 + bbip2jp1 + bbip2jm1 + bbim1jp2 + bbip1jp2 + bbim1jm2 + bbip1jm2 ) * 0.757 &  ! " x=17.9km        
+           &    + ( bbim2jm2 + bbim2jp2 + bbip2jm2 + bbip2jp2 ) * 0.641 & !  "     "      "       "       "      x=22.6km
+           &    + ( bbim3jjj + bbip3jjj + bbiiijm3 + bbiiijp3 ) * 0.606   !  "     "      "       "       "      x=24km
+
+           if ( bb .gt. 0.1 ) then
+                   
+             do kt=1,mtime
+
+               aa =   (  bbim1jjj*var(kim1,kj  ,1,kt) + bbip1jjj*var(kip1,kj  ,1,kt) + bbiiijm1*var(ki  ,kjm1,1,kt) + bbiiijp1*var(ki  ,kjp1,1,kt) ) * 0.946 &
+               &    + (  bbim2jjj*var(kim2,kj  ,1,kt) + bbip2jjj*var(kip2,kj  ,1,kt) + bbiiijm2*var(ki  ,kjm2,1,kt) + bbiiijp2*var(ki  ,kjp2,1,kt) ) * 0.801 &
+               &    + (  bbim1jm1*var(kim1,kjm1,1,kt) + bbim1jp1*var(kim1,kjp1,1,kt) + bbip1jm1*var(kip1,kjm1,1,kt) + bbip1jp1*var(kip1,kjp1,1,kt) ) * 0.895 &
+               &    + (  bbim2jp1*var(kim2,kjp1,1,kt) + bbim2jm1*var(kim2,kjm1,1,kt) + bbip2jp1*var(kip2,kjp1,1,kt) + bbip2jm1*var(kip2,kjm1,1,kt)           &
+               &       + bbim1jp2*var(kim1,kjp2,1,kt) + bbip1jp2*var(kip1,kjp2,1,kt) + bbim1jm2*var(kim1,kjm2,1,kt) + bbip1jm2*var(kip1,kjm2,1,kt) ) * 0.757 &
+               &    + (  bbim2jm2*var(kim2,kjm2,1,kt) + bbim2jp2*var(kim2,kjp2,1,kt) + bbip2jm2*var(kip2,kjm2,1,kt) + bbip2jp2*var(kip2,kjp2,1,kt) ) * 0.641 &
+               &    + (  bbim3jjj*var(kim3,kj  ,1,kt) + bbip3jjj*var(kip3,kj  ,1,kt) + bbiiijm3*var(ki  ,kjm3,1,kt) + bbiiijp3*var(ki  ,kjp3,1,kt) ) * 0.606
+
+               var_new(ki,kj,1,kt) = aa / bb
+
+             enddo
+
+           endif
       endif
     enddo
     enddo
 
-    var(:,:) = var_new(:,:)
+    var(:,:,:,:) = var_new(:,:,:,:)
 
    enddo ! iterations
 
@@ -222,11 +298,10 @@ DO kt=1,mtime
   ! 2- extrapolate horizontally in IMBIE2 basins (throughout the ice)
 
   ! write variable in netcdf
-  status = NF90_PUT_VAR(fidM,var_ID,var,start=(/1,1,kz,kt/),count=(/mx,my,1,1/))
+  status = NF90_PUT_VAR(fidM,varout_ID,var,start=(/1,1,kz,1/),count=(/mx,my,1,mtime/))
   call erreur(status,.TRUE.,"put_var")
 
- ENDDO
-ENDDO
+ENDDO ! kz
 
 !---------------------
 
