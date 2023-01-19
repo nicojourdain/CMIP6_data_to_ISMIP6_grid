@@ -5,7 +5,7 @@
 #SBATCH -J extrapolate
 #SBATCH -e extrapolate.e%j
 #SBATCH -o extrapolate.o%j
-#SBATCH --time=00:59:00
+#SBATCH --time=03:59:00
 ulimit -s unlimited
 
 date

@@ -1,0 +1,9 @@
+toto*
+tutu*
+titi*
+tete*
+tyty*
+ferret.jnl*
+*.o
+__pycache__
+*.[oe][0-9][0-9][0-9][0-9][0-9][0-9]
