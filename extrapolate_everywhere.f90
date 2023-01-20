@@ -392,6 +392,103 @@ DO kz=1,mz
 
   enddo ! kbasin
 
+  !=== step3: horizontal interpolation everywhere AT THE SURFACE, not accounting for basins
+  !           (even if bedrock above sea level, to extrapolate downward everywhere later on):
+  if ( kz.eq. 1) then
+
+    do kiter=1,250
+  
+      var_new(:,:,:,:) = var(:,:,:,:)
+  
+      do ki=1,mx
+      do kj=1,my
+        if ( abs(var(ki,kj,1,1)) .lt. 1.e3 ) then
+                mskba(ki,kj) = 1
+        else
+                mskba(ki,kj) = 0
+        endif
+      enddo
+      enddo
+  
+      do ki=1,mx
+      do kj=1,my
+        ! open ocean or ice shelf point with missing data and connected to ocean neighbours
+        if ( abs(var(ki,kj,1,1)) .ge. 1.e3 ) then
+           
+             ! Gaussian (sigma=24km) extrapolation to contiguous neighbours (needs continuous connection to (ki,kj) ) :
+  
+             kim1=MAX(ki-1, 1) ; kim2=MAX(ki-2, 1) ; kim3=MAX(ki-3, 1)
+             kip1=MIN(ki+1,mx) ; kip2=MIN(ki+2,mx) ; kip3=MIN(ki+3,mx)
+             kjm1=MAX(kj-1, 1) ; kjm2=MAX(kj-2, 1) ; kjm3=MAX(kj-3, 1)
+             kjp1=MIN(kj+1,my) ; kjp2=MIN(kj+2,my) ; kjp3=MIN(kj+3,my)
+  
+             bbim1jjj = mskba(kim1,kj) * 1.e0
+             bbip1jjj = mskba(kip1,kj) * 1.e0
+             bbiiijm1 = mskba(ki,kjm1) * 1.e0
+             bbiiijp1 = mskba(ki,kjp1) * 1.e0
+             !-
+             bbim2jjj = bbim1jjj * mskba(kim2,kj)
+             bbip2jjj = bbim1jjj * mskba(kip2,kj)
+             bbiiijm2 = bbiiijm1 * mskba(ki,kjm2)
+             bbiiijp2 = bbiiijm1 * mskba(ki,kjp2)
+             !-
+             bbim1jm1 = MAX(bbim1jjj,bbiiijm1) * mskba(kim1,kjm1)
+             bbim1jp1 = MAX(bbim1jjj,bbiiijp1) * mskba(kim1,kjp1)
+             bbip1jm1 = MAX(bbip1jjj,bbiiijm1) * mskba(kip1,kjm1)
+             bbip1jp1 = MAX(bbip1jjj,bbiiijp1) * mskba(kip1,kjp1)
+             !-
+             bbim2jp1 = MAX(bbim2jjj,bbim1jp1) * mskba(kim2,kjp1)
+             bbim2jm1 = MAX(bbim2jjj,bbim1jm1) * mskba(kim2,kjm1)
+             bbip2jp1 = MAX(bbip2jjj,bbip1jp1) * mskba(kip2,kjp1)
+             bbip2jm1 = MAX(bbip2jjj,bbip1jm1) * mskba(kip2,kjm1)
+             bbim1jp2 = MAX(bbim1jp1,bbiiijp2) * mskba(kim1,kjp2)
+             bbip1jp2 = MAX(bbip1jp1,bbiiijp2) * mskba(kip1,kjp2)
+             bbim1jm2 = MAX(bbim1jm1,bbiiijm2) * mskba(kim1,kjm2)
+             bbip1jm2 = MAX(bbip1jm1,bbiiijm2) * mskba(kip1,kjm2)
+             !-
+             bbim2jm2 = MAX(bbim2jm1,bbim1jm2) * mskba(kim2,kjm2)
+             bbim2jp2 = MAX(bbim2jp1,bbim1jp2) * mskba(kim2,kjp2)
+             bbip2jm2 = MAX(bbip2jm1,bbip1jm2) * mskba(kip2,kjm2)
+             bbip2jp2 = MAX(bbip2jp1,bbip1jp2) * mskba(kip2,kjp2)
+             !-
+             bbim3jjj = bbim2jjj * mskba(kim3,kj)
+             bbip3jjj = bbim2jjj * mskba(kip3,kj)
+             bbiiijm3 = bbiiijm2 * mskba(ki,kjm3)
+             bbiiijp3 = bbiiijm2 * mskba(ki,kjp3)
+  
+             bb =   ( bbim1jjj + bbip1jjj + bbiiijm1 + bbiiijp1 ) * 0.946 & ! normalised Gaussian of sigma=24km at x=8km
+             &    + ( bbim2jjj + bbip2jjj + bbiiijm2 + bbiiijp2 ) * 0.801 & !  "     "      "       "       "      x=16km
+             &    + ( bbim1jm1 + bbim1jp1 + bbip1jm1 + bbip1jp1 ) * 0.895 & !  "     "      "       "       "      x=11.3km
+             &    + ( bbim2jp1 + bbim2jm1 + bbip2jp1 + bbip2jm1 + bbim1jp2 + bbip1jp2 + bbim1jm2 + bbip1jm2 ) * 0.757 &  ! " x=17.9km        
+             &    + ( bbim2jm2 + bbim2jp2 + bbip2jm2 + bbip2jp2 ) * 0.641 & !  "     "      "       "       "      x=22.6km
+             &    + ( bbim3jjj + bbip3jjj + bbiiijm3 + bbiiijp3 ) * 0.606   !  "     "      "       "       "      x=24km
+  
+             if ( bb .gt. 0.1 ) then
+                     
+               do kt=1,mtime
+  
+                 aa =   (  bbim1jjj*var(kim1,kj  ,1,kt) + bbip1jjj*var(kip1,kj  ,1,kt) + bbiiijm1*var(ki  ,kjm1,1,kt) + bbiiijp1*var(ki  ,kjp1,1,kt) ) * 0.946 &
+                 &    + (  bbim2jjj*var(kim2,kj  ,1,kt) + bbip2jjj*var(kip2,kj  ,1,kt) + bbiiijm2*var(ki  ,kjm2,1,kt) + bbiiijp2*var(ki  ,kjp2,1,kt) ) * 0.801 &
+                 &    + (  bbim1jm1*var(kim1,kjm1,1,kt) + bbim1jp1*var(kim1,kjp1,1,kt) + bbip1jm1*var(kip1,kjm1,1,kt) + bbip1jp1*var(kip1,kjp1,1,kt) ) * 0.895 &
+                 &    + (  bbim2jp1*var(kim2,kjp1,1,kt) + bbim2jm1*var(kim2,kjm1,1,kt) + bbip2jp1*var(kip2,kjp1,1,kt) + bbip2jm1*var(kip2,kjm1,1,kt)           &
+                 &       + bbim1jp2*var(kim1,kjp2,1,kt) + bbip1jp2*var(kip1,kjp2,1,kt) + bbim1jm2*var(kim1,kjm2,1,kt) + bbip1jm2*var(kip1,kjm2,1,kt) ) * 0.757 &
+                 &    + (  bbim2jm2*var(kim2,kjm2,1,kt) + bbim2jp2*var(kim2,kjp2,1,kt) + bbip2jm2*var(kip2,kjm2,1,kt) + bbip2jp2*var(kip2,kjp2,1,kt) ) * 0.641 &
+                 &    + (  bbim3jjj*var(kim3,kj  ,1,kt) + bbip3jjj*var(kip3,kj  ,1,kt) + bbiiijm3*var(ki  ,kjm3,1,kt) + bbiiijp3*var(ki  ,kjp3,1,kt) ) * 0.606
+  
+                 var_new(ki,kj,1,kt) = aa / bb
+  
+               enddo
+  
+             endif
+        endif
+      enddo
+      enddo
+  
+      var(:,:,:,:) = var_new(:,:,:,:)
+  
+    enddo ! iterations
+  
+  endif ! kz.eq.1
 
   !== write variable in netcdf
   status = NF90_PUT_VAR(fidM,varout_ID,var,start=(/1,1,kz,1/),count=(/mx,my,1,mtime/))
