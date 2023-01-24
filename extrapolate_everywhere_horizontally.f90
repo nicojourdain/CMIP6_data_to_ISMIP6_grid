@@ -8,7 +8,7 @@ INTEGER :: fidA, status, dimID_x, dimID_y, dimID_z, dimID_time, mx, my, mz, mtim
 &          time_ID, z_ID, y_ID, x_ID, varin_ID, fidM, fidB, fidT, basinNumber_ID,  &
 &          mask_ID, bed_ID, kiter, ki, kj, kz, kt, kbasin, Nbasin, mask_ocean_ID,  &
 &          varout_ID, kim1, kip1, kjm1, kjp1, kim2, kip2, kjm2, kjp2, kim3, kip3,  &
-&          kjm3, kjp3
+&          kjm3, kjp3, Niter2
 
 CHARACTER(LEN=15) :: varnam
 
@@ -394,11 +394,17 @@ DO kz=1,mz
 
   enddo ! kbasin
 
-  !=== step3: horizontal interpolation everywhere AT THE SURFACE, not accounting for basins
-  !           (even if bedrock above sea level, to extrapolate downward everywhere later on):
-  if ( kz.eq. 1) then
+  !=== step3: horizontal interpolation everywhere AT THE SURFACE (k=2), not accounting for basins
+  !           (even if bedrock above sea level, to extrapolate downward everywhere later on).
+  !           AND extrapolation everywhere of 5 grid points to be less sensitive to BedMachine values
+  !           but not to fill deep isolated holes like Amery.
+  if ( kz.eq. 2) then ! takes 2nd level to avoid warn thin surface layer at the surface
+    Niter2=200 ! fills entire level
+  else
+    Niter2=5
+  endif
 
-    do kiter=1,200
+  do kiter=1,Niter2
   
       var_new(:,:,:,:) = var(:,:,:,:)
   
@@ -488,10 +494,8 @@ DO kz=1,mz
   
       var(:,:,:,:) = var_new(:,:,:,:)
   
-    enddo ! iterations
+  enddo ! iterations
   
-  endif ! kz.eq.1
-
   !== write variable in netcdf
   status = NF90_PUT_VAR(fidM,varout_ID,var,start=(/1,1,kz,1/),count=(/mx,my,1,mtime/))
   call erreur(status,.TRUE.,"put_var")

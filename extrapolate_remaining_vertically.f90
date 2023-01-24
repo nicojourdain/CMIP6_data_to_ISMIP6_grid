@@ -98,25 +98,29 @@ status = NF90_PUT_VAR(fidM,y_ID,y); call erreur(status,.TRUE.,"var_y_ID")
 status = NF90_PUT_VAR(fidM,x_ID,x); call erreur(status,.TRUE.,"var_x_ID")
 
 !----------------------------------------------------------------------------------------
+! Extrapolating vertically from kz=2 :
+!
 DO kt=1,mtime
 
   status = NF90_GET_VAR(fidA,var_in_ID,var_in,start=(/1,1,1,kt/),count=(/mx,my,mz,1/))
   call erreur(status,.TRUE.,"getvar_in")
 
-  DO kz=2,mz
+  do ki=1,mx
+  do kj=1,my
+    if ( abs(var_in(ki,kj,1)) .gt. 1.e3 .and. abs(var_in(ki,kj,2)) .lt. 1.e3 ) then
+       var_in(ki,kj,1) = var_in(ki,kj,2)
+    endif
+  enddo
+  enddo
 
+  DO kz=3,mz
     do ki=1,mx
     do kj=1,my
-
       if ( abs(var_in(ki,kj,kz)) .gt. 1.e3 .and. abs(var_in(ki,kj,kz-1)) .lt. 1.e3 ) then
-
          var_in(ki,kj,kz) = var_in(ki,kj,kz-1)
-
       endif
-
     enddo
     enddo
-
   ENDDO
 
   status = NF90_PUT_VAR(fidM,var_out_ID,var_in,start=(/1,1,1,kt/),count=(/mx,my,mz,1/))
