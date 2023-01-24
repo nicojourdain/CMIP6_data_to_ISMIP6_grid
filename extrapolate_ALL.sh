@@ -29,6 +29,8 @@ if [ ! -f tmp_hor.nc ]; then
    echo "~!@#%^&* ERROR IN HORIZONTAL INTERPOLATION FOR FILE :"
    echo  "        $file"
    exit
+else
+   rm -f tmp_hor tmp_hor.o tmp_hor.f90
 fi
 date
 
@@ -45,6 +47,8 @@ if [ ! -f ${FILEOUT} ]; then
    echo  "        ${FILEOUT}"
    echo  "        HAS NOT BEEN CREATED !! >>>>>>>>>> STOP !"
    exit
+else
+   rm -f tmp_ver tmp_ver.o tmp_ver.f90
 fi
 date
 
