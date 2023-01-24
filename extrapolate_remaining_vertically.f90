@@ -17,11 +17,12 @@ REAL*8,ALLOCATABLE,DIMENSION(:) :: time
  
 REAL*4,ALLOCATABLE,DIMENSION(:,:,:) :: var_in
  
- 
 !---------------------------------------
-file_in  = '/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/so_Omon_IPSL-CM6A-LR_ssp245_r1i1p1f1_201501_210012_f.nc'
-file_out = 'so_Omon_IPSL-CM6A-LR_ssp245_r1i1p1f1_201501_210012_f.nc'
+file_in  = 'tmp_hor.nc'
+file_out = '<file_out>'
  
+varnam = '<var_name>'
+
 !---------------------------------------
 ! Read netcdf input file :
  

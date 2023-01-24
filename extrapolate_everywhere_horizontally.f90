@@ -39,12 +39,14 @@ INTEGER,ALLOCATABLE,DIMENSION(:) :: Niter
 
 !----------------------------------------------------------------
 
-file_in  = '/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/so_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_e.nc'
-file_out = '/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED/so_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_e.nc'
+!file_in  = '/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/so_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_e.nc'
+file_in  = '<file_in>'
+!file_out = '/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED/so_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_e.nc'
+file_out = 'tmp_hor.nc'
 file_basin = '/data/njourdain/DATA_ISMIP6/imbie2_basin_numbers_8km_v2.nc' 
 file_topo  = '/data/njourdain/DATA_ISMIP6/BedMachineAntarctica_2020-07-15_v02_8km.nc'
 
-varnam = 'so'
+varnam = '<var_name>'
 
 !----------------------------------------------------------------
 ! Read CMIP6 data (previously interpolated to the ISMIP6 grid) :
@@ -162,7 +164,7 @@ status = NF90_PUT_VAR(fidM,y_ID,y); call erreur(status,.TRUE.,"putvar_y")
 status = NF90_PUT_VAR(fidM,x_ID,x); call erreur(status,.TRUE.,"putvar_x")
 
 !---------------------------------------------------------------------------------
-Nbasin=MAXVAL(basinNumber)
+Nbasin=MAXVAL(basinNumber)+1
 write(*,*) 'Number of IMBIE2 basins : ', Nbasin
 
 ! number of iteration to fill the ice shelves in each basin:
@@ -289,12 +291,12 @@ DO kz=1,mz
   enddo ! kbasin
 
   !=== step2: horizontal interpolation beyond present-day ice shelves (where bathy allows):
-  Niter(:) = 150
-  Niter(5:9) = 250 ! 8=Ross
-  Niter(11:12) = 50
-  Niter(14) = 50
-  Niter(15) = 250 ! FRIS
-  Niter(16) = 50
+  Niter(:) = 120
+  Niter(5:9) = 200 ! 8=Ross
+  Niter(11:12) = 40
+  Niter(14) = 40
+  Niter(15) = 200 ! FRIS
+  Niter(16) = 40
 
   do kbasin=1,Nbasin
 
@@ -396,7 +398,7 @@ DO kz=1,mz
   !           (even if bedrock above sea level, to extrapolate downward everywhere later on):
   if ( kz.eq. 1) then
 
-    do kiter=1,250
+    do kiter=1,200
   
       var_new(:,:,:,:) = var(:,:,:,:)
   
