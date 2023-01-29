@@ -87,9 +87,10 @@ status = NF90_PUT_ATT(fidM,y_ID,"units","m"); call erreur(status,.TRUE.,"put_att
 status = NF90_PUT_ATT(fidM,x_ID,"long_name","x coordinate"); call erreur(status,.TRUE.,"put_att_x_ID")
 status = NF90_PUT_ATT(fidM,x_ID,"units","m"); call erreur(status,.TRUE.,"put_att_x_ID")
  
-status = NF90_PUT_ATT(fidM,NF90_GLOBAL,"history","Created by N. Jourdain using extrapolate_remaining_vertically.f90")
-call erreur(status,.TRUE.,"put_att_GLOBAL_ID")
- 
+status = NF90_PUT_ATT(fidM,NF90_GLOBAL,"project","EU-H2020-PROTECT"); call erreur(status,.TRUE.,"att_GLO1")
+status = NF90_PUT_ATT(fidM,NF90_GLOBAL,"history","Created by N. Jourdain (IGE,CNRS)"); call erreur(status,.TRUE.,"att_GLO2")
+status = NF90_PUT_ATT(fidM,NF90_GLOBAL,"method","see https://github.com/nicojourdain/CMIP6_data_to_ISMIP6_grid"); call erreur(status,.TRUE.,"att_GLO3")
+
 status = NF90_ENDDEF(fidM); call erreur(status,.TRUE.,"fin_definition") 
  
 status = NF90_PUT_VAR(fidM,time_ID,time); call erreur(status,.TRUE.,"var_time_ID")

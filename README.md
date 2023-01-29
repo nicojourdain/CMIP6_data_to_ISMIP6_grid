@@ -14,8 +14,14 @@ Tested for: MPI-ESM1-2-HR, IPSL-CM6-LR.
 	- calling **extrapolate_remaining_vertically.f90** to extrapolate downward from above where there are still missing values (e.g., behind ridges, in the bedrock).
 
 
+## How to use
+
+First, run **all_files_to_stereo.sh** for a number of model outputs (starting from the _historical_ period), then run **extrapolate_ALL.sh** for years covering 1995-2014, then calculate the climatology over 1995-2014 using NCO tools (ncks, ncrcat, ncra). Then re-run **extrapolate_ALL.sh** for a number of model outputs. Then....
+
 ## Main differences with the standard ISMIP6 method
 
-The ocean extension of the IMBIE2 basins has been extended further offshore for Filchner-Ronne and Amery (using ```modify_IMBIE2_basins.py```):
+* The bathymetry/bedrock used for the extrapolation of ocean properties is BedMachine-v2 instead of BEDMAP2.
+
+* The ocean extension of the IMBIE2 basins has been extended further offshore for Filchner-Ronne and Amery (using ```modify_IMBIE2_basins.py```):
 
 ![New Basins](new_basins.png)
