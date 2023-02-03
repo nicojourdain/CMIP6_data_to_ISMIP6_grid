@@ -41,8 +41,8 @@ REAL*4 :: aa, lbd1, lbd2, lbd3
 file_in_Tobs  = '/data/njourdain/DATA_ISMIP6/obs_temperature_1995-2017_8km_x_60m.nc'
 file_in_Sobs  = '/data/njourdain/DATA_ISMIP6/obs_salinity_1995-2017_8km_x_60m.nc'
 
-file_in_Tclim  = '/data/njourdain/DATA_PROTECT/<model>/thetao_Clim_<model>_<scenar>_<member>_199501_201412.nc'
-file_in_Sclim  = '/data/njourdain/DATA_PROTECT/<model>/so_Clim_<model>_<scenar>_<member>_199501_201412.nc'
+file_in_Tclim  = '/data/njourdain/DATA_PROTECT/<model>/thetao_Clim_<model>_historical_<member>_199501_201412.nc'
+file_in_Sclim  = '/data/njourdain/DATA_PROTECT/<model>/so_Clim_<model>_historical_<member>_199501_201412.nc'
  
 file_in_T  = '/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED/thetao_Omon_<model>_<scenar>_<member>_<date1>_<date2>_<alpha>.nc'
 file_in_S  = '/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED/so_Omon_<model>_<scenar>_<member>_<date1>_<date2>_<alpha>.nc'

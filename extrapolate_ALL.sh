@@ -6,6 +6,9 @@
 #SBATCH -e extrapolate.e%j
 #SBATCH -o extrapolate.o%j
 #SBATCH --time=47:59:00
+
+## TAKES ~47h FOR 100 YEARS
+
 ulimit -s unlimited
 
 date
@@ -15,7 +18,7 @@ OUTPUTDIR='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED'
 
 #for file in ${INPUTDIR}/*_Omon_*_*_r*_*.nc
 #for file in ${INPUTDIR}/*_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_e*nc
-for file in ${INPUTDIR}/*_Omon_MPI-ESM1-2-HR_historical_r1i1p1f1_19*
+for file in ${INPUTDIR}/*_Omon_MPI-ESM1-2-HR_piControl_r1i1p1f1_19*
 #for file in ${INPUTDIR}/*_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_[e-g].nc
 do
 
