@@ -1,5 +1,6 @@
 import numpy as np
 import xarray as xr
+import dask
 import glob
 from ll2xy import ll2xy
 from scipy import interpolate
@@ -40,6 +41,8 @@ def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
 
    start=time.time()
 
+   dask.config.set({"array.slicing.split_large_chunks": True})
+
    # ISMIP grid data :
 
    grd=xr.open_dataset(ismip_grid_file)
@@ -64,6 +67,10 @@ def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
    lon_cmip=eval("cmip."+lon_name+".where((cmip."+lat_name+"<latmax),drop=True)")
    lat_cmip=eval("cmip."+lat_name+".where((cmip."+lat_name+"<latmax),drop=True)")
    lev_cmip=eval("cmip."+lev_name+".where((cmip."+lev_name+"<depmax),drop=True).values")
+
+   lev_units=eval("cmip."+lev_name+".attrs.get('units')")
+   if ( lev_units == 'centimeters' ):
+       lev_cmip = lev_cmip*1.e-2
 
    #print(var_cmip.shape,lon_cmip.shape)
 
