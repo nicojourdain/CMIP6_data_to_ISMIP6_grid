@@ -17,8 +17,8 @@ INPUTDIR='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID'
 OUTPUTDIR='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED'
 
 #for file in ${INPUTDIR}/*_Omon_*_*_r*_*.nc
-#for file in ${INPUTDIR}/*_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_e*nc
-for file in ${INPUTDIR}/*_Omon_MPI-ESM1-2-HR_piControl_r1i1p1f1_19*
+for file in ${INPUTDIR}/*_Omon_CNRM-CM6-1_historical_r1i1p1f2_*
+#for file in ${INPUTDIR}/*_Omon_MPI-ESM1-2-HR_piControl_r1i1p1f1_21*
 #for file in ${INPUTDIR}/*_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_[e-g].nc
 do
 

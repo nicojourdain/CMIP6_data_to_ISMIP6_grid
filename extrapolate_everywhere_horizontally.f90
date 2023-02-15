@@ -12,7 +12,7 @@ INTEGER :: fidA, status, dimID_x, dimID_y, dimID_z, dimID_time, mx, my, mz, mtim
 
 CHARACTER(LEN=15) :: varnam
 
-CHARACTER(LEN=150) :: file_in, file_out, file_basin, file_topo
+CHARACTER(LEN=150) :: file_in, file_out, file_basin, file_topo, cal, uni, his
 
 REAL*4 :: miss
 
@@ -39,9 +39,7 @@ INTEGER,ALLOCATABLE,DIMENSION(:) :: Niter
 
 !----------------------------------------------------------------
 
-!file_in  = '/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/so_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_e.nc'
 file_in  = '<file_in>'
-!file_out = '/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED/so_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_195001_201412_e.nc'
 file_out = 'tmp_hor.nc'
 file_basin = '/data/njourdain/DATA_ISMIP6/imbie2_basin_numbers_8km_v2.nc' 
 file_topo  = '/data/njourdain/DATA_ISMIP6/BedMachineAntarctica_2020-07-15_v02_8km.nc'
@@ -77,6 +75,10 @@ status = NF90_INQ_VARID(fidA,"z",z_ID); call erreur(status,.TRUE.,"inq_z_ID")
 status = NF90_INQ_VARID(fidA,"y",y_ID); call erreur(status,.TRUE.,"inq_y_ID")
 status = NF90_INQ_VARID(fidA,"x",x_ID); call erreur(status,.TRUE.,"inq_x_ID")
 status = NF90_INQ_VARID(fidA,TRIM(varnam),varin_ID); call erreur(status,.TRUE.,"inq_var_ID")
+
+status = NF90_GET_ATT(fidA,time_ID,'calendar',cal)     ; call erreur(status,.TRUE.,"get_att1")
+status = NF90_GET_ATT(fidA,time_ID,'units',uni)        ; call erreur(status,.TRUE.,"get_att2")
+status = NF90_GET_ATT(fidA,NF90_GLOBAL,'history',his)  ; call erreur(status,.TRUE.,"get_att3")
  
 status = NF90_GET_VAR(fidA,time_ID,time); call erreur(status,.TRUE.,"getvar_time")
 status = NF90_GET_VAR(fidA,z_ID,z); call erreur(status,.TRUE.,"getvar_z")
@@ -118,7 +120,7 @@ status = NF90_INQ_VARID(fidT,"mask_ocean",mask_ocean_ID); call erreur(status,.TR
 status = NF90_GET_VAR(fidT,mask_ID,mask); call erreur(status,.TRUE.,"getvar_mask")
 status = NF90_GET_VAR(fidT,bed_ID,bed); call erreur(status,.TRUE.,"getvar_bed")
 status = NF90_GET_VAR(fidT,mask_ocean_ID,mask_ocean); call erreur(status,.TRUE.,"getvar_mask_ocean")
- 
+
 status = NF90_CLOSE(fidT); call erreur(status,.TRUE.,"close_file")
 
 !-------------------------------------------------------------
@@ -139,8 +141,8 @@ status = NF90_DEF_VAR(fidM,"y",NF90_FLOAT,(/dimID_y/),y_ID); call erreur(status,
 status = NF90_DEF_VAR(fidM,"x",NF90_FLOAT,(/dimID_x/),x_ID); call erreur(status,.TRUE.,"def_var_x_ID")
 status = NF90_DEF_VAR(fidM,TRIM(varnam),NF90_FLOAT,(/dimID_x,dimID_y,dimID_z,dimID_time/),varout_ID); call erreur(status,.TRUE.,"def_var_var_ID")
  
-status = NF90_PUT_ATT(fidM,time_ID,"calendar","proleptic_gregorian"); call erreur(status,.TRUE.,"put_att_time_ID")
-status = NF90_PUT_ATT(fidM,time_ID,"units","days since 1850-01-01"); call erreur(status,.TRUE.,"put_att_time_ID")
+status = NF90_PUT_ATT(fidM,time_ID,"calendar",TRIM(cal)); call erreur(status,.TRUE.,"put_att_time_ID")
+status = NF90_PUT_ATT(fidM,time_ID,"units",TRIM(uni)); call erreur(status,.TRUE.,"put_att_time_ID")
 status = NF90_PUT_ATT(fidM,time_ID,"standard_name","time"); call erreur(status,.TRUE.,"put_att_time_ID")
 status = NF90_PUT_ATT(fidM,z_ID,"positive","up"); call erreur(status,.TRUE.,"put_att_z_ID")
 status = NF90_PUT_ATT(fidM,z_ID,"long_name","depth"); call erreur(status,.TRUE.,"put_att_z_ID")
@@ -153,7 +155,7 @@ status = NF90_PUT_ATT(fidM,x_ID,"units","m"); call erreur(status,.TRUE.,"put_att
 status = NF90_PUT_ATT(fidM,varout_ID,"missing_value",miss); call erreur(status,.TRUE.,"put_att_var_ID")
 
 status = NF90_PUT_ATT(fidM,NF90_GLOBAL,"project","EU-H2020-PROTECT"); call erreur(status,.TRUE.,"att_GLO1")
-status = NF90_PUT_ATT(fidM,NF90_GLOBAL,"history","Created by N. Jourdain (IGE,CNRS)"); call erreur(status,.TRUE.,"att_GLO2")
+status = NF90_PUT_ATT(fidM,NF90_GLOBAL,"history",TRIM(his)); call erreur(status,.TRUE.,"att_GLO2")
 status = NF90_PUT_ATT(fidM,NF90_GLOBAL,"method","see https://github.com/nicojourdain/CMIP6_data_to_ISMIP6_grid"); call erreur(status,.TRUE.,"att_GLO3")
  
 status = NF90_ENDDEF(fidM); call erreur(status,.TRUE.,"end_definition") 
@@ -173,7 +175,7 @@ ALLOCATE( Niter(Nbasin) )
 miss=-1.e6 ! temporary missing value
 
 DO kz=1,mz
-  write(*,*) '     kz ', kz
+  !write(*,*) '     kz ', kz
 
   ! read 2d variable in netcdf
   status = NF90_GET_VAR(fidA,varin_ID,var,start=(/1,1,kz,1/),count=(/mx,my,1,mtime/))

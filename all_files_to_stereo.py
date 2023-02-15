@@ -11,12 +11,12 @@ cmip_dir='/bdd/CMIP6'
 # output dir :
 out_dir='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID'
 
-#model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1']
-model_list = ['MPI-ESM1-2-HR']
+#model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM']
+model_list = ['NorESM2-MM']
 #scenar_list = ['historical','ssp126','ssp245','ssp585','piControl']
-scenar_list = ['piControl']
+scenar_list = ['ssp126','ssp245','ssp585']
 #var_list=['thetao','so']
-var_list=['so']
+var_list=['thetao','so']
 
 for model in model_list:
 
@@ -24,6 +24,7 @@ for model in model_list:
     namlat='latitude'
     namlev='lev'
     member='r1i1p1f1'
+    grd='gn'
     if ( model[0:4] == 'MPI-' ):  
         institute='MPI-M'
     elif ( model[0:5] == 'UKESM' ):  
@@ -38,10 +39,15 @@ for model in model_list:
         institute='NCAR'
         namlon='lon'
         namlat='lat'
+        member='r11i1p1f1'
     elif ( model[0:4] == 'CNRM' ):
         institute='CNRM-CERFACS'
         namlon='lon'
         namlat='lat'
+        member='r1i1p1f2'
+    elif ( model[0:7] == 'NorESM2' ):
+        institute='NCC'
+        grd='gr'
     else:
         institute='NOT_PROVIDED'
 
@@ -59,9 +65,9 @@ for model in model_list:
             print('---------- ',var,' ----------')
            
             if ( scenar[0:3] == 'ssp' ):
-                var_dir=cmip_dir+'/ScenarioMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/gn/latest'
+                var_dir=cmip_dir+'/ScenarioMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
             else:
-                var_dir=cmip_dir+'/CMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/gn/latest'
+                var_dir=cmip_dir+'/CMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
 
             # grouping by minimum 10-year periods :
 
@@ -69,7 +75,7 @@ for model in model_list:
 
                 #periodp4 = period+1
 
-                file_list= sorted(glob.glob(var_dir+'/'+var+'_Omon_'+model+'_'+scenar+'_'+member+'_gn_'\
+                file_list= sorted(glob.glob(var_dir+'/'+var+'_Omon_'+model+'_'+scenar+'_'+member+'_'+grd+'_'\
                                            +period.astype(str)+'*.nc'))
                                      #+period.astype(str)+'-'+periodp4.astype(str)+']*.nc')
 

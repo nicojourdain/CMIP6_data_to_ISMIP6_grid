@@ -20,7 +20,8 @@ INTEGER :: fidTin, fidTclim, fidTobs, fidTout, fidSin, fidSclim, fidSobs, fidSou
 &          z_bnds_out_TFavg_ID, z_bnds_out_TFrms_ID
  
 CHARACTER(LEN=150) :: file_in_Tobs, file_in_Sobs, file_in_Tclim, file_in_Sclim, file_in_T,   &
-&                     file_out_T, file_in_S, file_out_S, file_out_TFavg, file_out_TFrms
+&                     file_out_T, file_in_S, file_out_S, file_out_TFavg, file_out_TFrms,     &
+&                     cal, uni, his
  
 REAL*4,ALLOCATABLE,DIMENSION(:) :: x, y, z
  
@@ -146,6 +147,10 @@ ALLOCATE(  so(mx,my,mz,12)  )
 status = NF90_INQ_VARID(fidTin,"time",time_ID); call erreur(status,.TRUE.,"inq_time_ID")
 status = NF90_INQ_VARID(fidTin,"thetao",thetao_ID); call erreur(status,.TRUE.,"inq_thetao_ID")
 
+status = NF90_GET_ATT(fidTin,time_ID,'calendar',cal)     ; call erreur(status,.TRUE.,"get_att1")
+status = NF90_GET_ATT(fidTin,time_ID,'units',uni)        ; call erreur(status,.TRUE.,"get_att2")
+status = NF90_GET_ATT(fidTin,NF90_GLOBAL,'history',his)  ; call erreur(status,.TRUE.,"get_att3")
+
 status = NF90_GET_VAR(fidTin,time_ID,time); call erreur(status,.TRUE.,"getvar_time")
  
 !---------------------------------------
@@ -247,8 +252,8 @@ status = NF90_PUT_ATT(fidTout,z_out_T_ID,"bounds","z_bnds"); call erreur(status,
 status = NF90_PUT_ATT(fidTout,z_out_T_ID,"long_name","depth"); call erreur(status,.TRUE.,"put_att_z_ID")
 status = NF90_PUT_ATT(fidTout,z_out_T_ID,"positive","up"); call erreur(status,.TRUE.,"put_att_z_ID")
 status = NF90_PUT_ATT(fidTout,time_out_T_ID,"standard_name","time"); call erreur(status,.TRUE.,"put_att_time_ID")
-status = NF90_PUT_ATT(fidTout,time_out_T_ID,"units","days since 1850-01-01"); call erreur(status,.TRUE.,"put_att_time_ID")
-status = NF90_PUT_ATT(fidTout,time_out_T_ID,"calendar","proleptic_gregorian"); call erreur(status,.TRUE.,"put_att_time_ID")
+status = NF90_PUT_ATT(fidTout,time_out_T_ID,"units",TRIM(uni)); call erreur(status,.TRUE.,"put_att_time_ID")
+status = NF90_PUT_ATT(fidTout,time_out_T_ID,"calendar",TRIM(cal)); call erreur(status,.TRUE.,"put_att_time_ID")
 
 status = NF90_PUT_ATT(fidSout,x_out_S_ID,"units","m"); call erreur(status,.TRUE.,"put_att_x_ID")
 status = NF90_PUT_ATT(fidSout,x_out_S_ID,"long_name","x coordinate"); call erreur(status,.TRUE.,"put_att_x_ID")
@@ -259,8 +264,8 @@ status = NF90_PUT_ATT(fidSout,z_out_S_ID,"bounds","z_bnds"); call erreur(status,
 status = NF90_PUT_ATT(fidSout,z_out_S_ID,"long_name","depth"); call erreur(status,.TRUE.,"put_att_z_ID")
 status = NF90_PUT_ATT(fidSout,z_out_S_ID,"positive","up"); call erreur(status,.TRUE.,"put_att_z_ID")
 status = NF90_PUT_ATT(fidSout,time_out_S_ID,"standard_name","time"); call erreur(status,.TRUE.,"put_att_time_ID")
-status = NF90_PUT_ATT(fidSout,time_out_S_ID,"units","days since 1850-01-01"); call erreur(status,.TRUE.,"put_att_time_ID")
-status = NF90_PUT_ATT(fidSout,time_out_S_ID,"calendar","proleptic_gregorian"); call erreur(status,.TRUE.,"put_att_time_ID")
+status = NF90_PUT_ATT(fidSout,time_out_S_ID,"units",TRIM(uni)); call erreur(status,.TRUE.,"put_att_time_ID")
+status = NF90_PUT_ATT(fidSout,time_out_S_ID,"calendar",TRIM(cal)); call erreur(status,.TRUE.,"put_att_time_ID")
 
 status = NF90_PUT_ATT(fidTFavg,x_out_TFavg_ID,"units","m"); call erreur(status,.TRUE.,"put_att_x_ID")
 status = NF90_PUT_ATT(fidTFavg,x_out_TFavg_ID,"long_name","x coordinate"); call erreur(status,.TRUE.,"put_att_x_ID")
@@ -271,8 +276,8 @@ status = NF90_PUT_ATT(fidTFavg,z_out_TFavg_ID,"bounds","z_bnds"); call erreur(st
 status = NF90_PUT_ATT(fidTFavg,z_out_TFavg_ID,"long_name","depth"); call erreur(status,.TRUE.,"put_att_z_ID")
 status = NF90_PUT_ATT(fidTFavg,z_out_TFavg_ID,"positive","up"); call erreur(status,.TRUE.,"put_att_z_ID")
 status = NF90_PUT_ATT(fidTFavg,time_out_TFavg_ID,"standard_name","time"); call erreur(status,.TRUE.,"put_att_time_ID")
-status = NF90_PUT_ATT(fidTFavg,time_out_TFavg_ID,"units","days since 1850-01-01"); call erreur(status,.TRUE.,"put_att_time_ID")
-status = NF90_PUT_ATT(fidTFavg,time_out_TFavg_ID,"calendar","proleptic_gregorian"); call erreur(status,.TRUE.,"put_att_time_ID")
+status = NF90_PUT_ATT(fidTFavg,time_out_TFavg_ID,"units",TRIM(uni)); call erreur(status,.TRUE.,"put_att_time_ID")
+status = NF90_PUT_ATT(fidTFavg,time_out_TFavg_ID,"calendar",TRIM(cal)); call erreur(status,.TRUE.,"put_att_time_ID")
 
 status = NF90_PUT_ATT(fidTFrms,x_out_TFrms_ID,"units","m"); call erreur(status,.TRUE.,"put_att_x_ID")
 status = NF90_PUT_ATT(fidTFrms,x_out_TFrms_ID,"long_name","x coordinate"); call erreur(status,.TRUE.,"put_att_x_ID")
@@ -283,8 +288,8 @@ status = NF90_PUT_ATT(fidTFrms,z_out_TFrms_ID,"bounds","z_bnds"); call erreur(st
 status = NF90_PUT_ATT(fidTFrms,z_out_TFrms_ID,"long_name","depth"); call erreur(status,.TRUE.,"put_att_z_ID")
 status = NF90_PUT_ATT(fidTFrms,z_out_TFrms_ID,"positive","up"); call erreur(status,.TRUE.,"put_att_z_ID")
 status = NF90_PUT_ATT(fidTFrms,time_out_TFrms_ID,"standard_name","time"); call erreur(status,.TRUE.,"put_att_time_ID")
-status = NF90_PUT_ATT(fidTFrms,time_out_TFrms_ID,"units","days since 1850-01-01"); call erreur(status,.TRUE.,"put_att_time_ID")
-status = NF90_PUT_ATT(fidTFrms,time_out_TFrms_ID,"calendar","proleptic_gregorian"); call erreur(status,.TRUE.,"put_att_time_ID")
+status = NF90_PUT_ATT(fidTFrms,time_out_TFrms_ID,"units",TRIM(uni)); call erreur(status,.TRUE.,"put_att_time_ID")
+status = NF90_PUT_ATT(fidTFrms,time_out_TFrms_ID,"calendar",TRIM(cal)); call erreur(status,.TRUE.,"put_att_time_ID")
 
 !--
 
@@ -304,20 +309,20 @@ status = NF90_PUT_ATT(fidTFrms,TFrms_out_ID,"long_name","Thermal Forcing (annual
 
 !--
 
-status = NF90_PUT_ATT(fidTout,NF90_GLOBAL,"history","Created by Nico Jourdain (IGE-CNRS) from the CMIP6 data"); call erreur(status,.TRUE.,"put_att_GLO1")
-status = NF90_PUT_ATT(fidTout,NF90_GLOBAL,"tools","https://github.com/nicojourdain/CMIP6_data_to_ISMIP6_grid"); call erreur(status,.TRUE.,"put_att_GLO2")
+status = NF90_PUT_ATT(fidTout,NF90_GLOBAL,"history",TRIM(his)); call erreur(status,.TRUE.,"put_att_GLO1")
+status = NF90_PUT_ATT(fidTout,NF90_GLOBAL,"methods","https://github.com/nicojourdain/CMIP6_data_to_ISMIP6_grid"); call erreur(status,.TRUE.,"put_att_GLO2")
 status = NF90_PUT_ATT(fidTout,NF90_GLOBAL,"project","EU-H2020-PROTECT"); call erreur(status,.TRUE.,"put_att_GLO3")
 
-status = NF90_PUT_ATT(fidSout,NF90_GLOBAL,"history","Created by Nico Jourdain (IGE-CNRS) from the CMIP6 data"); call erreur(status,.TRUE.,"put_att_GLO1")
-status = NF90_PUT_ATT(fidSout,NF90_GLOBAL,"tools","https://github.com/nicojourdain/CMIP6_data_to_ISMIP6_grid"); call erreur(status,.TRUE.,"put_att_GLO2")
+status = NF90_PUT_ATT(fidSout,NF90_GLOBAL,"history",TRIM(his)); call erreur(status,.TRUE.,"put_att_GLO1")
+status = NF90_PUT_ATT(fidSout,NF90_GLOBAL,"methods","https://github.com/nicojourdain/CMIP6_data_to_ISMIP6_grid"); call erreur(status,.TRUE.,"put_att_GLO2")
 status = NF90_PUT_ATT(fidSout,NF90_GLOBAL,"project","EU-H2020-PROTECT"); call erreur(status,.TRUE.,"put_att_GLO3")
  
-status = NF90_PUT_ATT(fidTFavg,NF90_GLOBAL,"history","Created by Nico Jourdain (IGE-CNRS) from the CMIP6 data"); call erreur(status,.TRUE.,"put_att_GLO1")
-status = NF90_PUT_ATT(fidTFavg,NF90_GLOBAL,"tools","https://github.com/nicojourdain/CMIP6_data_to_ISMIP6_grid"); call erreur(status,.TRUE.,"put_att_GLO2")
+status = NF90_PUT_ATT(fidTFavg,NF90_GLOBAL,"history",TRIM(his)); call erreur(status,.TRUE.,"put_att_GLO1")
+status = NF90_PUT_ATT(fidTFavg,NF90_GLOBAL,"methods","https://github.com/nicojourdain/CMIP6_data_to_ISMIP6_grid"); call erreur(status,.TRUE.,"put_att_GLO2")
 status = NF90_PUT_ATT(fidTFavg,NF90_GLOBAL,"project","EU-H2020-PROTECT"); call erreur(status,.TRUE.,"put_att_GLO3")
  
-status = NF90_PUT_ATT(fidTFrms,NF90_GLOBAL,"history","Created by Nico Jourdain (IGE-CNRS) from the CMIP6 data"); call erreur(status,.TRUE.,"put_att_GLO1")
-status = NF90_PUT_ATT(fidTFrms,NF90_GLOBAL,"tools","https://github.com/nicojourdain/CMIP6_data_to_ISMIP6_grid"); call erreur(status,.TRUE.,"put_att_GLO2")
+status = NF90_PUT_ATT(fidTFrms,NF90_GLOBAL,"history",TRIM(his)); call erreur(status,.TRUE.,"put_att_GLO1")
+status = NF90_PUT_ATT(fidTFrms,NF90_GLOBAL,"methods","https://github.com/nicojourdain/CMIP6_data_to_ISMIP6_grid"); call erreur(status,.TRUE.,"put_att_GLO2")
 status = NF90_PUT_ATT(fidTFrms,NF90_GLOBAL,"project","EU-H2020-PROTECT"); call erreur(status,.TRUE.,"put_att_GLO3")
 
 !--

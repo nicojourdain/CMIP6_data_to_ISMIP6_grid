@@ -56,8 +56,14 @@ def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
 
    cmip=xr.open_mfdataset(cmip_file_list)
 
+   lev_units=eval("cmip."+lev_name+".attrs.get('units')")
+   print('Vertical level units : '+lev_units)
+
    latmax=-59.0   # only read CMIP file south of that
+
    depmax=2200.0  # only read CMIP file above this depth
+   if ( lev_units == 'centimeters' ):
+       depmax=depmax*1.e2
 
    var_cmip=eval("cmip."+var_name+".where((cmip."+lat_name+"<latmax)&(cmip."+lev_name+"<depmax),drop=True)")
    mt_cmip,mz_cmip,my_cmip,mx_cmip = var_cmip.shape
@@ -66,9 +72,8 @@ def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
 
    lon_cmip=eval("cmip."+lon_name+".where((cmip."+lat_name+"<latmax),drop=True)")
    lat_cmip=eval("cmip."+lat_name+".where((cmip."+lat_name+"<latmax),drop=True)")
-   lev_cmip=eval("cmip."+lev_name+".where((cmip."+lev_name+"<depmax),drop=True).values")
 
-   lev_units=eval("cmip."+lev_name+".attrs.get('units')")
+   lev_cmip=eval("cmip."+lev_name+".where((cmip."+lev_name+"<depmax),drop=True).values")
    if ( lev_units == 'centimeters' ):
        lev_cmip = lev_cmip*1.e-2
 

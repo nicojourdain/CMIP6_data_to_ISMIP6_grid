@@ -7,3 +7,8 @@ ferret.jnl*
 *.o
 __pycache__
 *.[oe][0-9][0-9][0-9][0-9][0-9][0-9]
+tmp*
+txp*
+jfn*
+xtr*
+tzp*
