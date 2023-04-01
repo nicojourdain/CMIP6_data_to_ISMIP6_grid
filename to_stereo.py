@@ -37,7 +37,7 @@ def vertical_interp(original_depth,interpolated_depth):
 
 #=================================================================
 def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
-              var_name='thetao',lon_name='longitude',lat_name='latitude',lev_name='lev'):
+              var_name='thetao',lon_name='longitude',lat_name='latitude',lev_name='lev',lonloat2d=True):
 
    start=time.time()
 
@@ -70,19 +70,21 @@ def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
    mxy_cmip = mx_cmip*my_cmip
    print('CMIP File Size : ',mx_cmip,my_cmip,mz_cmip,mt_cmip)
 
-   lon_cmip=eval("cmip."+lon_name+".where((cmip."+lat_name+"<latmax),drop=True)")
-   lat_cmip=eval("cmip."+lat_name+".where((cmip."+lat_name+"<latmax),drop=True)")
+   if lonlat2d:
+     lon_cmip=eval("cmip."+lon_name+".where((cmip."+lat_name+"<latmax),drop=True)")
+     lat_cmip=eval("cmip."+lat_name+".where((cmip."+lat_name+"<latmax),drop=True)")
+     x_cmip, y_cmip = ll2xy(lat_cmip, lon_cmip, sgn=-1)
+     x_cmip_1d = np.reshape( x_cmip.values, mxy_cmip)
+     y_cmip_1d = np.reshape( y_cmip.values, mxy_cmip)
+   else:
+     lon_cmip,lat_cmip = eval("np.meshgrid(cmip."+lon_name+".values,cmip."+lat_name+".where((cmip."+lat_name+"<latmax),drop=True).values,indexing='xy')")
+     x_cmip, y_cmip = ll2xyb(np.reshape(lat_cmip, mxy_cmip), np.reshape(lon_cmip, mxy_cmip), sgn=-1)
+     x_cmip_1d = np.reshape( x_cmip, mxy_cmip)
+     y_cmip_1d = np.reshape( y_cmip, mxy_cmip)
 
    lev_cmip=eval("cmip."+lev_name+".where((cmip."+lev_name+"<depmax),drop=True).values")
    if ( lev_units == 'centimeters' ):
        lev_cmip = lev_cmip*1.e-2
-
-   #print(var_cmip.shape,lon_cmip.shape)
-
-   x_cmip, y_cmip = ll2xy(lat_cmip, lon_cmip, sgn=-1)
-
-   x_cmip_1d = np.reshape( x_cmip.values, mxy_cmip)
-   y_cmip_1d = np.reshape( y_cmip.values, mxy_cmip)
 
    # Interpolation :
 

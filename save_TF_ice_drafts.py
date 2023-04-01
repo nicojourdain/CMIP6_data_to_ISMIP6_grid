@@ -13,7 +13,7 @@ Zdraft = bm.surface - bm.thickness
 pathin = '/data/njourdain/DATA_PROTECT'
 pathout = '/data/njourdain/DATA_PROTECT/TF_on_ice_draft'
 
-model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM']
+model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM','CESM2-WACCM','MRI-ESM2-0']
 scenar_list = ['historical','ssp126','ssp245','ssp585','piControl']
 var_list=['TFrms','TFavg']
 
@@ -25,7 +25,7 @@ for model in model_list:
 
       for file_in in file_list:
 
-        file_out = file_in.replace(var,var+'_ISdraft').replace(pathin,pathout)
+        file_out = file_in.replace(var,var+'_ISdraft').replace(pathin,pathout).replace('/'+model+'/','/')
         print(file_out)
 
         check=os.path.exists(file_out)
