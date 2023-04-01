@@ -105,6 +105,6 @@ for model in model_list:
                     out_file=out_dir+'/'+var+'_Omon_'+model+'_'+scenar+'_'+member+'_'+first_date+'_'+last_date+'.nc'
 
                     to_stereo(ismip_grid_file=f1,cmip_file_list=file_list,file_out=out_file,var_name=var,\
-                              lon_name=namlon,lat_name=namlat,lev_name=namlev,lonloat2d=ll2d)
+                              lon_name=namlon,lat_name=namlat,lev_name=namlev,lonlat2d=ll2d)
 
 print('[oK]')

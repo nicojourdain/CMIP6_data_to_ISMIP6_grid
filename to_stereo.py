@@ -3,6 +3,7 @@ import xarray as xr
 import dask
 import glob
 from ll2xy import ll2xy
+from ll2xyb import ll2xyb
 from scipy import interpolate
 import time
 import os
@@ -37,7 +38,7 @@ def vertical_interp(original_depth,interpolated_depth):
 
 #=================================================================
 def to_stereo(ismip_grid_file,cmip_file_list,file_out='test.nc',\
-              var_name='thetao',lon_name='longitude',lat_name='latitude',lev_name='lev',lonloat2d=True):
+              var_name='thetao',lon_name='longitude',lat_name='latitude',lev_name='lev',lonlat2d=True):
 
    start=time.time()
 
