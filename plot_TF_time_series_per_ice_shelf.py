@@ -12,9 +12,9 @@ dirTF='/data/njourdain/DATA_PROTECT/TF_on_ice_draft'
 
 var='TFrms'
 
-model  = [ 'IPSL-CM6A-LR'  , 'CNRM-CM6-1', 'CESM2'     , 'UKESM1-0-LL', 'MRI-ESM2-0', 'CESM2-WACCM' , 'MPI-ESM1-2-HR' , 'ACCESS-CM2' ]
-member = ['r1i1p1f1'       , 'r1i1p1f2'  , 'r11i1p1f1' , 'r4i1p1f2'   , 'r1i1p1f1'  ,  'r1i1p1f1'   ,   'r1i1p1f1'    ,  'r1i1p1f1'  ]
-colors = ['cornflowerblue' , 'darkblue'  , 'orange'    , 'brown'      ,  'cyan'     ,   'magenta'   ,   'chartreuse'  ,    'green'   ]
+model  = [ 'IPSL-CM6A-LR'  , 'CNRM-CM6-1', 'CESM2'     , 'UKESM1-0-LL', 'MRI-ESM2-0', 'CESM2-WACCM' , 'MPI-ESM1-2-HR' , 'ACCESS-CM2' , 'CanESM5'  , 'GISS-E2-1-H']
+member = ['r1i1p1f1'       , 'r1i1p1f2'  , 'r11i1p1f1' , 'r4i1p1f2'   , 'r1i1p1f1'  ,  'r1i1p1f1'   ,   'r1i1p1f1'    ,  'r1i1p1f1'  , 'r1i1p1f1' ,   'r1i1p1f2' ]
+colors = ['cornflowerblue' , 'darkblue'  , 'yellow'    , 'brown'      ,  'cyan'     ,   'magenta'   ,   'chartreuse'  ,    'green'   ,    'red'   ,   'orange'   ]
 
 isf  = ['(a) Ross Ice Shelf', '(b) Ronne-Filchner' , '(c) Thwaites-PIG' , '(d) Totten-Moscow']
 imin = [         304        ,          189         ,         169        ,          649       ]
@@ -35,6 +35,7 @@ for kisf in np.arange(len(imax)):
       list_sp585 = sorted(glob.glob(dirTF+'/'+var+'_ISdraft_Oyr_'+model[kmod]+'_ssp585_'+member[kmod]+'_*12.nc')) 
       
       if len(list_histo):
+         print(list_histo)
          hi = xr.open_mfdataset(list_histo,decode_times=False)
          tmp_histo = hi.TF.isel(x=slice(imin[kisf],imax[kisf]),y=slice(jmin[kisf],jmax[kisf])) * bm.mask.isel(x=slice(imin[kisf],imax[kisf]),y=slice(jmin[kisf],jmax[kisf]))
          hi_year0 = 1850
@@ -51,6 +52,7 @@ for kisf in np.arange(len(imax)):
 #         axs[kisf].plot(s1_years,TF_sp126.values,color=colors[kmod],linestyle='--',linewidth=1.5,label='ssp126')
       
       if len(list_sp585):
+         print(list_sp585)
          s5 = xr.open_mfdataset(list_sp585,decode_times=False)
          tmp_sp585 = s5.TF.isel(x=slice(imin[kisf],imax[kisf]),y=slice(jmin[kisf],jmax[kisf])) * bm.mask.isel(x=slice(imin[kisf],imax[kisf]),y=slice(jmin[kisf],jmax[kisf]))
          s5_year0 = 2015
