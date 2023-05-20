@@ -11,12 +11,12 @@ cmip_dir='/bdd/CMIP6'
 # output dir :
 out_dir='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID'
 
-#model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM','CESM2-WACCM','MRI-ESM2-0','ACCESS-CM2','CanESM5','GISS-E2-1-H','ACCESS-ESM1-5']
-model_list = ['ACCESS-ESM1-5']
-#scenar_list = ['historical','ssp126','ssp245','ssp585','piControl']
-scenar_list = ['ssp126']
+#model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM','CESM2-WACCM','MRI-ESM2-0','ACCESS-CM2','CanESM5','GISS-E2-1-H','ACCESS-ESM1-5','CNRM-ESM2-1','GFDL-CM4']
+model_list = ['GFDL-CM4']
+#scenar_list = ['historical','ssp126','ssp245','ssp585','piControl','1pctCO2-cdr','G6sulfur','G6solar']
+scenar_list = ['historical']
 #var_list=['thetao','so']
-var_list=['thetao','so']
+var_list=['thetao']
 
 for model in model_list:
 
@@ -69,6 +69,10 @@ for model in model_list:
         member='r1i1p1f2'
         grd='gr'
         ll2d=False
+    elif ( model[0:4] == 'GFDL' ):
+        institute='NOAA-GFDL'
+        namlon='lon'
+        namlat='lat'
     else:
         institute='NOT_PROVIDED'
 
@@ -86,7 +90,12 @@ for model in model_list:
             print('---------- ',var,' ----------')
            
             if ( scenar[0:3] == 'ssp' ):
-                #var_dir=cmip_dir+'/ScenarioMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
+                var_dir=cmip_dir+'/ScenarioMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
+                #var_dir='/scratchu/njourdain/RAW_CMIP6'
+            elif ( scenar[0:11] == '1pctCO2-cdr' ):
+                var_dir=cmip_dir+'/CDRMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
+            elif ( scenar[0:2] == 'G6' ):
+                #var_dir=cmip_dir+'/GeoMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
                 var_dir='/scratchu/njourdain/RAW_CMIP6'
             else:
                 var_dir=cmip_dir+'/CMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'

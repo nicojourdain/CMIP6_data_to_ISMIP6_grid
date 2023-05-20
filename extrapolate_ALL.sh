@@ -17,7 +17,7 @@ INPUTDIR='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID'
 OUTPUTDIR='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED'
 
 #for file in ${INPUTDIR}/*_Omon_*_*_r*_*.nc
-for file in ${INPUTDIR}/thetao_Omon_ACCESS-ESM1-5_historical_r1i1p1f1_*
+for file in ${INPUTDIR}/thetao_Omon_CNRM-ESM2-1_G6*
 do
 
 VAR=`basename $file | cut -d '_' -f1`
