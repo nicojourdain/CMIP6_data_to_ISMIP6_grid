@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --ntasks=1
-#SBATCH --mem=128000
-###SBATCH --mem=156000
+###SBATCH --mem=128000
+#SBATCH --mem=156000
 #SBATCH --threads-per-core=1
 #SBATCH -J interpolate_CMIP
 #SBATCH -e interpolate_CMIP.e%j

@@ -13,7 +13,7 @@ Zdraft = bm.surface - bm.thickness
 pathin = '/data/njourdain/DATA_PROTECT'
 pathout = '/data/njourdain/DATA_PROTECT/TF_on_ice_draft'
 
-model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM','CESM2-WACCM','MRI-ESM2-0','ACCESS-CM2','CanESM5','GISS-E2-1-H','ACCESS-ESM1-5']
+model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM','CESM2-WACCM','MRI-ESM2-0','ACCESS-CM2','CanESM5','GISS-E2-1-H','ACCESS-ESM1-5','CNRM-ESM2-1','GFDL-CM4','GFDL-ESM4']
 scenar_list = ['historical','ssp126','ssp245','ssp585','piControl']
 var_list=['TFrms','TFavg']
 

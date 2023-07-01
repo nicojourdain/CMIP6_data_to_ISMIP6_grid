@@ -1,9 +1,9 @@
 import numpy as np
 import glob
-from to_stereo import to_stereo
+from to_stereo_2d import to_stereo_2d
 
-# ISMIP6 grid :
-f1='/data/njourdain/DATA_ISMIP6/imbie2_basin_numbers_8km_v2.nc'
+# PROTECT RCM grid :
+f1='/data/njourdain/DATA_PROTECT/TAS/RCM_ice_regrid_04000m.nc'
 
 # CMIP data path :
 cmip_dir='/bdd/CMIP6'
@@ -12,40 +12,41 @@ cmip_dir='/bdd/CMIP6'
 out_dir='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID'
 
 #model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM','CESM2-WACCM','MRI-ESM2-0','ACCESS-CM2','CanESM5','GISS-E2-1-H','ACCESS-ESM1-5','CNRM-ESM2-1','GFDL-CM4','GFDL-ESM4']
-model_list = ['NorESM2-MM']
-#scenar_list = ['historical','ssp126','ssp245','ssp585','piControl','1pctCO2-cdr','G6sulfur','G6solar']
+model_list = ['CNRM-CM6-1']
+#scenar_list = ['historical','ssp126','ssp245','ssp585','piControl']
 scenar_list = ['ssp585']
-#var_list=['thetao','so']
-var_list=['thetao','so']
+#var_list=['tas','pr','evspsbl','mrro','mrros']
+var_list=['mrro','mrros']
 
 for model in model_list:
 
     namlon='longitude'
     namlat='latitude'
-    namlev='lev'
     member='r1i1p1f1'
-    grd='gn'
-    ll2d=True # 2d lon lat
+    grd='gr'
     if ( model[0:4] == 'MPI-' ):  
         institute='MPI-M'
+        namlon='lon'
+        namlat='lat'
+        grd='gn'
     elif ( model[0:5] == 'UKESM' ):  
         institute='MOHC'
-        #member='r4i1p1f2'
         member='r1i1p1f2'
+        namlon='lon'
+        namlat='lat'
+        grd='gn'
     elif ( model[0:4] == 'IPSL' ):
         institute='IPSL'
-        namlon='nav_lon'
-        namlat='nav_lat'
-        namlev='olevel'
-        #member='r1i1p1f1'
-        #member='r3i1p1f1'
-        member='r25i1p1f1'
+        namlon='lon'
+        namlat='lat'
+        member='r1i1p1f1'
     elif ( model[0:4] == 'CESM' ):
         institute='NCAR'
         namlon='lon'
         namlat='lat'
         #member='r11i1p1f1' # for CESM2
         member='r1i1p1f1' # for CESM2-WACCM
+        grd='gn'
     elif ( model[0:4] == 'CNRM' ):
         institute='CNRM-CERFACS'
         namlon='lon'
@@ -53,21 +54,35 @@ for model in model_list:
         member='r1i1p1f2'
     elif ( model[0:7] == 'NorESM2' ):
         institute='NCC'
-        grd='gr'
+        namlon='lon'
+        namlat='lat'
+        grd='gn'
     elif ( model[0:4] == 'MRI-' ):
         institute='MRI'
+        namlon='lon'
+        namlat='lat'
+        grd='gn'
     elif ( model[0:10] == 'ACCESS-CM2' ):
         institute='CSIRO-ARCCSS'
+        namlon='lon'
+        namlat='lat'
+        grd='gn'
     elif ( model[0:13] == 'ACCESS-ESM1-5' ):
         institute='CSIRO'
+        namlon='lon'
+        namlat='lat'
+        grd='gn'
     elif ( model[0:7] == 'CanESM5' ):
         institute='CCCma'
+        namlon='lon'
+        namlat='lat'
+        grd='gn'
     elif ( model[0:9] == 'GISS-E2-1' ):
         institute='NASA-GISS'
         namlon='lon'
         namlat='lat'
         member='r1i1p1f2'
-        grd='gr'
+        grd='gn'
         ll2d=False
     elif ( model[0:4] == 'GFDL' ):
         institute='NOAA-GFDL'
@@ -90,22 +105,18 @@ for model in model_list:
             print('---------- ',var,' ----------')
            
             if ( scenar[0:3] == 'ssp' ):
-                #var_dir=cmip_dir+'/ScenarioMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
                 var_dir='/scratchu/njourdain/RAW_CMIP6'
-            elif ( scenar[0:11] == '1pctCO2-cdr' ):
-                var_dir=cmip_dir+'/CDRMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
-            elif ( scenar[0:2] == 'G6' ):
-                var_dir=cmip_dir+'/GeoMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
-                #var_dir='/scratchu/njourdain/RAW_CMIP6'
+                #var_dir=cmip_dir+'/ScenarioMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Lmon/'+var+'/'+grd+'/latest'
+            elif ( scenar[0:3] == 'rcp' ):
+                var_dir='/scratchu/njourdain/RAW_CMIP6'
             else:
-                var_dir=cmip_dir+'/CMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
+                var_dir=cmip_dir+'/CMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Lmon/'+var+'/'+grd+'/latest'
                 #var_dir='/scratchu/njourdain/RAW_CMIP6'
-
-            # grouping by minimum 10-year periods :
+            print(var_dir)
 
             for period in np.arange(100,300,1):
 
-                file_list= sorted(glob.glob(var_dir+'/'+var+'_Omon_'+model+'_'+scenar+'_'+member+'_'+grd+'_'\
+                file_list= sorted(glob.glob(var_dir+'/'+var+'_Lmon_'+model+'_'+scenar+'_'+member+'_'+grd+'_'\
                                            +period.astype(str)+'*.nc'))
 
                 if ( len(file_list) ): # file_list not empty
@@ -115,9 +126,9 @@ for model in model_list:
                     first_date=file_list[0][-16:-10]
                     last_date=file_list[-1][-9:-3]
     
-                    out_file=out_dir+'/'+var+'_Omon_'+model+'_'+scenar+'_'+member+'_'+first_date+'_'+last_date+'.nc'
+                    out_file=out_dir+'/'+var+'_Lmon_'+model+'_'+scenar+'_'+member+'_'+first_date+'_'+last_date+'.nc'
 
-                    to_stereo(ismip_grid_file=f1,cmip_file_list=file_list,file_out=out_file,var_name=var,\
-                              lon_name=namlon,lat_name=namlat,lev_name=namlev,lonlat2d=ll2d)
+                    to_stereo_2d(ismip_grid_file=f1,cmip_file_list=file_list,file_out=out_file,var_name=var,\
+                                 lon_name=namlon,lat_name=namlat)
 
 print('[oK]')
