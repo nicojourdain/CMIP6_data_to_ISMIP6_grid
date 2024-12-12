@@ -1,8 +1,10 @@
 # CMIP6_data_to_ISMIP6_grid
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13756240.svg)](https://doi.org/10.5281/zenodo.13756240)
+
 Tools to interpolate and extrapolate CMIP6 ocean data to the ISMIP6 stereographic grid in the PROTECT project.
 
-Tested for: MPI-ESM1-2-HR, IPSL-CM6-LR.
+Tested for most CMIP6 models.
 
 ## The scripts and what they do
 

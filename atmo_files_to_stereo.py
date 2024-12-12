@@ -11,12 +11,12 @@ cmip_dir='/bdd/CMIP6'
 # output dir :
 out_dir='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID'
 
-#model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM','CESM2-WACCM','MRI-ESM2-0','ACCESS-CM2','CanESM5','GISS-E2-1-H','ACCESS-ESM1-5','CNRM-ESM2-1','GFDL-CM4','GFDL-ESM4']
-model_list = ['CNRM-CM6-1']
+#model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM','CESM2-WACCM','MRI-ESM2-0','ACCESS-CM2','CanESM5','GISS-E2-1-H','ACCESS-ESM1-5','CNRM-ESM2-1','GFDL-CM4','GFDL-ESM4','INM-CM5-0']
+model_list = ['IPSL-CM6A-LR']
 #scenar_list = ['historical','ssp126','ssp245','ssp585','piControl']
-scenar_list = ['ssp585']
+scenar_list = ['piControl']
 #var_list=['tas','pr','evspsbl','mrro','mrros']
-var_list=['pr','evspsbl']
+var_list=['tas']
 
 for model in model_list:
 
@@ -32,6 +32,7 @@ for model in model_list:
     elif ( model[0:5] == 'UKESM' ):  
         institute='MOHC'
         member='r1i1p1f2'
+        #member='r4i1p1f2'
         namlon='lon'
         namlat='lat'
         grd='gn'
@@ -88,6 +89,12 @@ for model in model_list:
         institute='NOAA-GFDL'
         namlon='lon'
         namlat='lat'
+        grd='gr1'
+    elif ( model[0:3] == 'INM' ):
+        institute='INM'
+        namlon='lon'
+        namlat='lat'
+        grd='gr1'
     else:
         institute='NOT_PROVIDED'
 
@@ -105,8 +112,8 @@ for model in model_list:
             print('---------- ',var,' ----------')
            
             if ( scenar[0:3] == 'ssp' ):
-                var_dir='/scratchu/njourdain/RAW_CMIP6'
-                #var_dir=cmip_dir+'/ScenarioMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Amon/'+var+'/'+grd+'/latest'
+                #var_dir='/scratchu/njourdain/RAW_CMIP6'
+                var_dir=cmip_dir+'/ScenarioMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Amon/'+var+'/'+grd+'/latest'
             elif ( scenar[0:3] == 'rcp' ):
                 var_dir='/scratchu/njourdain/RAW_CMIP6'
             else:
@@ -114,7 +121,7 @@ for model in model_list:
                 #var_dir='/scratchu/njourdain/RAW_CMIP6'
             print(var_dir)
 
-            for period in np.arange(100,300,1):
+            for period in np.arange(100,279,1):
 
                 file_list= sorted(glob.glob(var_dir+'/'+var+'_Amon_'+model+'_'+scenar+'_'+member+'_'+grd+'_'\
                                            +period.astype(str)+'*.nc'))

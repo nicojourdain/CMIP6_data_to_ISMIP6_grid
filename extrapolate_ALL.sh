@@ -17,8 +17,16 @@ INPUTDIR='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID'
 OUTPUTDIR='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED'
 
 #for file in ${INPUTDIR}/*_Omon_*_*_r*_*.nc
-for file in ${INPUTDIR}/thetao_Omon_NorESM2-MM_ssp585_r1i1p1f1_*
+for file in ${INPUTDIR}/thetao_Omon_IPSL-CM6A-LR_hist-stratO3_r10i1p1f1_*.nc
 do
+
+fileout="${OUTPUTDIR}/`basename $file`"
+
+if [ -f $fileout ]; then
+
+echo "`basename $file` already there >>>> go to next one."
+
+else
 
 VAR=`basename $file | cut -d '_' -f1`
 
@@ -55,5 +63,6 @@ else
 fi
 date
 
+fi
 
 done

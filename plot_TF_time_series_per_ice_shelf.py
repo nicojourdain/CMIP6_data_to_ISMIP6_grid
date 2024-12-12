@@ -12,9 +12,9 @@ dirTF='/data/njourdain/DATA_PROTECT/TF_on_ice_draft'
 
 var='TFrms'
 
-model  = [ 'IPSL-CM6A-LR'  , 'CNRM-CM6-1', 'CESM2'     , 'UKESM1-0-LL', 'MRI-ESM2-0', 'CESM2-WACCM' , 'MPI-ESM1-2-HR' , 'ACCESS-CM2' , 'CanESM5'  , 'GISS-E2-1-H']
-member = ['r1i1p1f1'       , 'r1i1p1f2'  , 'r11i1p1f1' , 'r4i1p1f2'   , 'r1i1p1f1'  ,  'r1i1p1f1'   ,   'r1i1p1f1'    ,  'r1i1p1f1'  , 'r1i1p1f1' ,   'r1i1p1f2' ]
-colors = ['cornflowerblue' , 'darkblue'  , 'yellow'    , 'brown'      ,  'cyan'     ,   'magenta'   ,   'chartreuse'  ,    'green'   ,    'red'   ,   'orange'   ]
+model  = [ 'IPSL-CM6A-LR'  , 'CNRM-CM6-1', 'CESM2'     , 'UKESM1-0-LL', 'MRI-ESM2-0', 'CESM2-WACCM' , 'MPI-ESM1-2-HR' , 'ACCESS-CM2' , 'CanESM5'  , 'GISS-E2-1-H', 'ACCESS-ESM1-5', 'CNRM-ESM2-1' , 'GFDL-CM4' , 'GFDL-ESM4', 'NorESM2-MM' ]
+member = [ 'r1i1p1f1'      , 'r1i1p1f2'  , 'r11i1p1f1' , 'r4i1p1f2'   , 'r1i1p1f1'  ,  'r1i1p1f1'   ,   'r1i1p1f1'    ,  'r1i1p1f1'  , 'r1i1p1f1' ,   'r1i1p1f2' , 'r1i1p1f1'     , 'r1i1p1f2'    , 'r1i1p1f1' , 'r1i1p1f1' , 'r1i1p1f1'   ]
+colors = [ 'cornflowerblue', 'darkblue'  , 'yellow'    , 'brown'      ,  'cyan'     ,   'magenta'   ,   'chartreuse'  ,    'green'   ,    'red'   ,   'orange'   , 'lightpink'    , 'olive'       , 'gold'     , 'lavender' , 'skyblue'    ]
 
 isf  = ['(a) Ross Ice Shelf', '(b) Ronne-Filchner' , '(c) Thwaites-PIG' , '(d) Totten-Moscow']
 imin = [         304        ,          189         ,         169        ,          649       ]

@@ -5,7 +5,7 @@
 #SBATCH -J extract_TF
 #SBATCH -e extract_TF.e%j
 #SBATCH -o extract_TF.o%j
-#SBATCH --time=01:59:00
+#SBATCH --time=04:59:00
 ulimit -s unlimited
 
 date
@@ -13,7 +13,7 @@ date
 INPUTDIR='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED'
 OUTPUTDIR='/data/njourdain/DATA_PROTECT'
 # loop on a list of **thetao files** (assuming that corresponding so files exist) :
-for file in ${INPUTDIR}/thetao_Omon_NorESM2-MM_ssp585_r1i1p1f1_*
+for file in ${INPUTDIR}/thetao_Omon_IPSL-CM6A-LR_hist-stratO3_r10i1p1f1_*
 do
 
 MODEL=`basename $file | cut -d '_' -f3`

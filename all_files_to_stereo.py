@@ -11,10 +11,10 @@ cmip_dir='/bdd/CMIP6'
 # output dir :
 out_dir='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID'
 
-#model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM','CESM2-WACCM','MRI-ESM2-0','ACCESS-CM2','CanESM5','GISS-E2-1-H','ACCESS-ESM1-5','CNRM-ESM2-1','GFDL-CM4','GFDL-ESM4']
-model_list = ['NorESM2-MM']
-#scenar_list = ['historical','ssp126','ssp245','ssp585','piControl','1pctCO2-cdr','G6sulfur','G6solar']
-scenar_list = ['ssp585']
+#model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM','CESM2-WACCM','MRI-ESM2-0','ACCESS-CM2','CanESM5','GISS-E2-1-H','ACCESS-ESM1-5','CNRM-ESM2-1','GFDL-CM4','GFDL-ESM4','INM-CM5-0']
+model_list = ['IPSL-CM6A-LR']
+#scenar_list = ['historical','ssp126','ssp245','ssp370','ssp585','piControl','1pctCO2-cdr','G6sulfur','G6solar','ssp534-over','hist-nat','hist-GHG',hist-stratO3','ssp245-nat','ssp245-GHG']
+scenar_list = ['hist-stratO3']
 #var_list=['thetao','so']
 var_list=['thetao','so']
 
@@ -28,10 +28,16 @@ for model in model_list:
     ll2d=True # 2d lon lat
     if ( model[0:4] == 'MPI-' ):  
         institute='MPI-M'
+        #member='r1i1p1f1'
+        member='r2i1p1f1'
     elif ( model[0:5] == 'UKESM' ):  
         institute='MOHC'
+        #member='r1i1p1f2'
+        #member='r2i1p1f2'
         #member='r4i1p1f2'
-        member='r1i1p1f2'
+        #member='r6i1p1f3'
+        #member='r8i1p1f2'
+        member='r18i1p1f2'
     elif ( model[0:4] == 'IPSL' ):
         institute='IPSL'
         namlon='nav_lon'
@@ -39,13 +45,17 @@ for model in model_list:
         namlev='olevel'
         #member='r1i1p1f1'
         #member='r3i1p1f1'
-        member='r25i1p1f1'
+        #member='r25i1p1f1'
+        #member='r6i1p1f1'
+        #member='r11i1p1f1'
+        member='r10i1p1f1'
     elif ( model[0:4] == 'CESM' ):
         institute='NCAR'
         namlon='lon'
         namlat='lat'
         #member='r11i1p1f1' # for CESM2
-        member='r1i1p1f1' # for CESM2-WACCM
+        #member='r1i1p1f1' # for CESM2-WACCM
+        member='r1i1p1f2' # for CESM2-WACCM G6sulfur
     elif ( model[0:4] == 'CNRM' ):
         institute='CNRM-CERFACS'
         namlon='lon'
@@ -73,6 +83,11 @@ for model in model_list:
         institute='NOAA-GFDL'
         namlon='lon'
         namlat='lat'
+    elif ( model[0:3] == 'INM' ):
+        institute='INM'
+        namlon='lon'
+        namlat='lat'
+        grd='gr1'
     else:
         institute='NOT_PROVIDED'
 
@@ -89,24 +104,30 @@ for model in model_list:
             print(' ')
             print('---------- ',var,' ----------')
            
-            if ( scenar[0:3] == 'ssp' ):
-                #var_dir=cmip_dir+'/ScenarioMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
-                var_dir='/scratchu/njourdain/RAW_CMIP6'
+            if ( ( scenar[0:5] == 'hist-' ) | ( scenar[0:7] == 'ssp245-' ) ):
+                var_dir=cmip_dir+'/DAMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
+            elif ( scenar[0:3] == 'ssp' ):
+                var_dir=cmip_dir+'/ScenarioMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
+                #var_dir='/scratchu/njourdain/RAW_CMIP6'
             elif ( scenar[0:11] == '1pctCO2-cdr' ):
                 var_dir=cmip_dir+'/CDRMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
             elif ( scenar[0:2] == 'G6' ):
-                var_dir=cmip_dir+'/GeoMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
-                #var_dir='/scratchu/njourdain/RAW_CMIP6'
+                #var_dir=cmip_dir+'/GeoMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
+                var_dir='/scratchu/njourdain/RAW_CMIP6'
             else:
                 var_dir=cmip_dir+'/CMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
                 #var_dir='/scratchu/njourdain/RAW_CMIP6'
 
+            print(var_dir)
+
             # grouping by minimum 10-year periods :
 
-            for period in np.arange(100,300,1):
+            for period in np.arange(180,300,1):
 
                 file_list= sorted(glob.glob(var_dir+'/'+var+'_Omon_'+model+'_'+scenar+'_'+member+'_'+grd+'_'\
                                            +period.astype(str)+'*.nc'))
+
+                print(period, file_list)
 
                 if ( len(file_list) ): # file_list not empty
     
