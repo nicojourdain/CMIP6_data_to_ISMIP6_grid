@@ -17,7 +17,7 @@ INPUTDIR='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID'
 OUTPUTDIR='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED'
 
 #for file in ${INPUTDIR}/*_Omon_*_*_r*_*.nc
-for file in ${INPUTDIR}/thetao_Omon_IPSL-CM6A-LR_hist-stratO3_r10i1p1f1_*.nc
+for file in ${INPUTDIR}/thetao_Omon_UKESM1-0-LL_ssp370_r9i1p1f2_*
 do
 
 fileout="${OUTPUTDIR}/`basename $file`"

@@ -35,8 +35,19 @@ r32 :branch_time_in_parent = 21914.,  i.e. 1910-01-01 in piControl
 UKESM:
 r1  :branch_time_in_parent = 144000., i.e. 2250-01-01 in piControl
 r2  :branch_time_in_parent = 113400., i.e. 2165-01-01 in piControl
-r4  :branch_time_in_parent = 39600.,  i.e. 1960-01-01 in piControl
+r3  :branch_time_in_parent =  97200., i.e. 2120-01-01 in piControl 
+r4  :branch_time_in_parent =  39600., i.e. 1960-01-01 in piControl
+r5  :branch_time_in_parent =  61200., i.e. 2020-01-01 in piControl 
+r6  :branch_time_in_parent =  72000., i.e. 2050-01-01 in piControl 
+r7  :branch_time_in_parent =  52200., i.e. 1995-01-01 in piControl 
 r8  :branch_time_in_parent = 196200., i.e. 2395-01-01 in piControl
+r9  :branch_time_in_parent = 156600., i.e. 2285-01-01 in piControl 
+r10 :branch_time_in_parent = 176400., i.e. 2340-01-01 in piControl 
+r11 :branch_time_in_parent = 219600., i.e. 2460-01-01 in piControl 
+r12 :branch_time_in_parent = 129600., i.e. 2210-01-01 in piControl 
+r16 :branch_time_in_parent = 280440., i.e. 2629-01-01 in piControl 
+r17 :branch_time_in_parent = 311760., i.e. 2716-01-01 in piControl 
+r18 :branch_time_in_parent = 327600., i.e. 2760-01-01 in piControl 
 
 MPI:
 r1  :branch_time_in_parent = 0.,      i.e. 1850-01-01 in piControl

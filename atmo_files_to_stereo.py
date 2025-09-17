@@ -12,8 +12,8 @@ cmip_dir='/bdd/CMIP6'
 out_dir='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID'
 
 #model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM','CESM2-WACCM','MRI-ESM2-0','ACCESS-CM2','CanESM5','GISS-E2-1-H','ACCESS-ESM1-5','CNRM-ESM2-1','GFDL-CM4','GFDL-ESM4','INM-CM5-0']
-model_list = ['IPSL-CM6A-LR']
-#scenar_list = ['historical','ssp126','ssp245','ssp585','piControl']
+model_list = ['UKESM1-0-LL']
+#scenar_list = ['historical','ssp126','ssp245','ssp585','piControl','hist-nat','hist-GHG','hist-stratO3','ssp245-nat','ssp245-GHG']
 scenar_list = ['piControl']
 #var_list=['tas','pr','evspsbl','mrro','mrros']
 var_list=['tas']
