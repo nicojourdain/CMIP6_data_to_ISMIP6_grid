@@ -13,7 +13,7 @@ date
 INPUTDIR='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID/EXTRAPOLATED'
 OUTPUTDIR='/data/njourdain/DATA_PROTECT'
 # loop on a list of **thetao files** (assuming that corresponding so files exist) :
-for file in ${INPUTDIR}/thetao_Omon_UKESM1-0-LL_ssp370_r9i1p1f2_*
+for file in ${INPUTDIR}/thetao_Omon_NEMO_quentin_r1i1p1f1_185001_202312_*.nc
 do
 
 MODEL=`basename $file | cut -d '_' -f3`

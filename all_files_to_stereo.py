@@ -12,9 +12,9 @@ cmip_dir='/bdd/CMIP6'
 out_dir='/scratchu/njourdain/CMIP6_ON_ISMIP6_GRID'
 
 #model_list = ['MPI-ESM1-2-HR','UKESM1-0-LL','IPSL-CM6A-LR','CESM2','CNRM-CM6-1','NorESM2-MM','CESM2-WACCM','MRI-ESM2-0','ACCESS-CM2','CanESM5','GISS-E2-1-H','ACCESS-ESM1-5','CNRM-ESM2-1','GFDL-CM4','GFDL-ESM4','INM-CM5-0']
-model_list = ['UKESM1-0-LL']
+model_list = ['NEMO']
 #scenar_list = ['historical','ssp126','ssp245','ssp370','ssp585','piControl','1pctCO2-cdr','G6sulfur','G6solar','ssp534-over','hist-nat','hist-GHG',hist-stratO3','hist-aer','ssp245-nat','ssp245-GHG']
-scenar_list = ['ssp370']
+scenar_list = ['quentin']
 #var_list=['thetao','so']
 var_list=['thetao','so']
 
@@ -85,6 +85,11 @@ for model in model_list:
         namlon='lon'
         namlat='lat'
         grd='gr1'
+    elif ( model[0:4] == 'NEMO' ):
+        institute='NOT_USED'
+        namlon='nav_lon'
+        namlat='nav_lat'
+        namlev='deptht'
     else:
         institute='NOT_PROVIDED'
 
@@ -108,6 +113,8 @@ for model in model_list:
                 #var_dir='/scratchu/njourdain/RAW_CMIP6'
             elif ( scenar[0:11] == '1pctCO2-cdr' ):
                 var_dir=cmip_dir+'/CDRMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
+            elif ( scenar[0:7] == 'quentin' ):
+                var_dir='/scratchu/njourdain/JUSTINE'
             elif ( scenar[0:2] == 'G6' ):
                 #var_dir=cmip_dir+'/GeoMIP/'+institute+'/'+model+'/'+scenar+'/'+member+'/Omon/'+var+'/'+grd+'/latest'
                 var_dir='/scratchu/njourdain/RAW_CMIP6'

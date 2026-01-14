@@ -1,6 +1,6 @@
 # CMIP6_data_to_ISMIP6_grid
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13756240.svg)](https://doi.org/10.5281/zenodo.13756240)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12755910.svg)](https://doi.org/10.5281/zenodo.12755910)
 
 Tools to interpolate and extrapolate CMIP6 ocean data to the ISMIP6 stereographic grid in the PROTECT project.
 
